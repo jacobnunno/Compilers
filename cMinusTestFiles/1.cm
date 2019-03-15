@@ -1,0 +1,19 @@
+/*A program to output the larger of two integers*/
+
+void main(int x)
+{
+	int a;
+	int b;
+	
+	a = 45;
+	b = 100;
+
+	if(a > b)
+	{
+		output(a);
+	}
+	else
+	{
+		output(b);
+	}
+}
