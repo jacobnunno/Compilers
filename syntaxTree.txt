@@ -1,11 +1,7 @@
 The abstract syntax tree is:
-ArrayDec: x
-IntExp: 10
-- INT
+ArrayDec: x [10] - INT
 FunctionDec: minloc - INT
-    ArrayDec: a
-    IntExp: 0
-- INT
+    ArrayDec: a [0] - INT
     SimpleDec: low - INT
     SimpleDec: high - INT
     CompoundExp: 
@@ -65,9 +61,7 @@ FunctionDec: minloc - INT
             VarExp: 
                 SimpleVar: k
 FunctionDec: sort - VOID
-    ArrayDec: a
-    IntExp: 0
-- INT
+    ArrayDec: a [0] - INT
     SimpleDec: low - INT
     SimpleDec: high - INT
     CompoundExp: 
