@@ -12,7 +12,8 @@ class Main {
     
     try {
       //redirect sys out to file
-	  PrintStream o = new PrintStream(new File("syntaxTree.txt")); 
+      String file = "syntaxTree.txt";
+	  PrintStream o = new PrintStream(new File(file)); 
       PrintStream console = System.out; 
       System.setOut(o); 
       /* Start the parser */
@@ -23,6 +24,17 @@ class Main {
          ShowTreeVisitor visitor = new ShowTreeVisitor();
          result.accept(visitor, 0); 
       }
+      //Checkpoint 2 
+      //set the output to console
+      System.setOut(console);
+      //reading the tree line by line
+      try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+			String line;
+			while ((line = br.readLine()) != null) {
+				
+				System.out.println(line);
+			}
+		}
     } catch (Exception e) {
       e.printStackTrace();
     }
