@@ -14,9 +14,11 @@ class Main {
     try {
       //redirect sys out to file
       String file = "syntaxTree.txt";
-	  PrintStream o = new PrintStream(new File(file)); 
+	  PrintStream tree = new PrintStream(new File(file)); 
+	  String file2 = "symbolTable.txt";
+	  PrintStream table = new PrintStream(new File(file2)); 
       PrintStream console = System.out; 
-      System.setOut(o); 
+      System.setOut(tree); 
       /* Start the parser */
       parser p = new parser(new Lexer(new FileReader(argv[0])));
       Absyn result = (Absyn)(p.parse().value);  
@@ -40,6 +42,7 @@ class Main {
          result.accept(visitor, 0); 
       }
       if(SHOW_TABLE){
+		  System.setOut(table); 
 		  System.out.println("The Symbol Tree is:");
 		  SemanticAnalyzer builder = new SemanticAnalyzer();
           result.accept(builder, 0);

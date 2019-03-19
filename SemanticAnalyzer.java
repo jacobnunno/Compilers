@@ -12,28 +12,6 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
   HashMap<String, ArrayList<NameDef>> symbolTable = new HashMap<String, ArrayList<NameDef>> ();	
   	
 
-  // check for a duplicate definition in the same scope
-  // @param NameDef newOne - the new definition we want to add to the symbol table
-  // @return boolean - true if there is a duplicate false if there is no duplicate
-  public boolean isDuplicateInScope(NameDef newOne){
-		
-	  for (ArrayList list : symbolTable.values()) {
-
-		  //check first entry of each key value pair
-		  NameDef head = (NameDef)list.get(0);
-		  
-		  String currentName = head.name;
-		  int currentLevel = head.level;
-		  
-		  //check name of definition and check scope of definiton
-		  if (newOne.name.equals(currentName) && newOne.level == currentLevel)
-		  {
-			  return true;
-		  }
-	  }
-	  return false;
-  }
-
   private void indent( int level ) {
     for( int i = 0; i < level * SPACES; i++ ) 
 		System.out.print( " " );
@@ -65,7 +43,7 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
   public void build( AssignExp exp , int level ) {
 	if(exp != null)
 	{	
-		level++;
+		//level++;
 		exp.lhs.accept( this, level );
 		exp.rhs.accept( this, level );
 	}
@@ -76,14 +54,16 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
 	{	
 		indent( level );
 		System.out.println( "Entering a new block: ");
-		level++;
 		exp.test.accept( this, level );
+		level++;
 		exp.thenpart.accept( this, level );
 		if (exp.elsepart != null )
 		   exp.elsepart.accept( this, level );
     }
     level--;
     indent( level );
+    
+	deleteScope(level);
     System.out.println( "Leaving the block");
   }
 
@@ -93,7 +73,7 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
   public void build( OpExp exp , int level ) {
 	  if(exp != null)
 	{	
-		level++;
+		//level++;
 		exp.left.accept( this, level );
 		exp.right.accept( this, level );
 	}
@@ -102,7 +82,7 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
   public void build( VarExp exp , int level ) {
 	  if(exp != null)
 	{	
-		level++;
+		//level++;
 		//this will either be an indexVar or a simpleVar
 		exp.variable.accept ( this, level);    
 	}
@@ -122,7 +102,7 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
   public void build( IndexVar iVar , int level ) {
 	  if(iVar != null)
 	{	
-	 level++;
+	 //level++;
 		//this goes to SimpleVariable
 		iVar.index.accept( this, level);
 	}
@@ -131,6 +111,13 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
   public void build( SimpleVar sVar , int level ) {
 	if(sVar != null)
 	{	
+		NameDef nDef = new NameDef(sVar.name, level, null);
+		if(isDuplicateInScope(nDef) == false)
+		{
+			int row = sVar.row;
+            int col = sVar.col;
+            System.err.println("Undeclared Variable: " + sVar.name  + " Row " + row + " Col " + col);
+		}
 	}
   }
   
@@ -145,11 +132,14 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
 	{	
 		indent( level );		
 		System.out.println( "Entering a new block: ");
-		level++;
 		exp.test.accept( this, level);
+	
+		level++;
 		exp.block.accept( this, level);		
 		level--;
 		indent( level );
+		
+		deleteScope(level);
 		System.out.println( "Leaving the block");
 	}
   }
@@ -160,16 +150,8 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
 		indent( level );
 		NameDef arrayDef = new NameDef(exp.name,level,exp);
 		
-		//check for duplicate array declaration
-		if (isDuplicateInScope(arrayDef) == false){
-			addHash(arrayDef);
-		}
-		else {
-			int row = arrayDef.dec.row;
-			int col = arrayDef.dec.col;
-			System.err.println("Duplicate Array Declaration: " + arrayDef + " Row " + row + " Col " + col);
-		}
 		
+		addHash(arrayDef);
 		System.out.print(exp.name + ": ");
 		build(exp.typ, level);
 	}
@@ -188,9 +170,7 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
 			addHash(funcDef);
 		}
 		else {
-			int row = funcDef.dec.row;
-			int col = funcDef.dec.col;
-			System.err.println("Duplicate Function Declaration: " + funcDef  + " Row " + row + " Col " + col);
+			System.err.println("Found Duplicate Function Declaration");
 			addHash(funcDef);
 		}
 		
@@ -198,7 +178,8 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
 		exp.params.accept(this, level);
 		exp.body.accept(this, level);
 		level--;
-		indent( level );		
+		indent( level );	
+		deleteScope(level);
 		System.out.println( "Leaving the scope for function "  + exp.func);
 	}
   }
@@ -222,16 +203,7 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
 	{			
 		NameDef simpleDef = new NameDef(exp.name,level,exp);
 		
-		//check for duplicate simple declaration
-		if (isDuplicateInScope(simpleDef) == false){
-			addHash(simpleDef);
-		}
-		else {
-			int row = simpleDef.dec.row;
-			int col = simpleDef.dec.col;
-			System.err.println("Duplicate Simple Variable Declaration: " + simpleDef + " Row " + row + " Col " + col);
-		}
-		
+		addHash(simpleDef);
 		indent( level );
 		System.out.print(exp.name + ": ");
 		exp.typ.accept( this, level);
@@ -266,7 +238,15 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
   public void printList(ArrayList arrli)
   {
 	 for (int i=0; i<arrli.size(); i++) 
-            System.out.print(arrli.get(i)+" ");  
+            System.out.print((arrli.get(i)).toString() + "\n");  
+  }
+  
+  public void printHash()
+  {
+	  System.out.println( "************************ printing Hash\n");
+	  for (ArrayList list : symbolTable.values()) {
+		  printList(list);
+	  }
   }
     
   public String getKey()
@@ -302,6 +282,50 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
 		//printList(arrayList);
 		//System.out.print( " Scope:  " + nDef.level + " ");
 	}  
+  }
+  
+  // check for a duplicate definition in the same scope
+  // @param NameDef newOne - the new definition we want to add to the symbol table
+  // @return boolean - true if there is a duplicate false if there is no duplicate
+  public boolean isDuplicateInScope(NameDef newOne){
+	  for (ArrayList list : symbolTable.values()) {
+		  if(list.isEmpty() == false)
+		  {
+			  //check first entry of each key value pair
+			  NameDef head = (NameDef)list.get(0);
+			  String currentName = head.name;
+			  int currentLevel = head.level;
+			  
+			   //System.err.println("****************************" + newOne.name + " = " + currentName + " AND " + newOne.level + " = " + currentLevel);
+			  
+			  //check name of definition and check scope of definiton
+			  if (newOne.name.equals(currentName) && newOne.level == currentLevel)
+			  {
+				  return true;
+			  }		  
+		  }
+	  }
+	  return false;
+  }
+  
+  public void deleteScope(int level)
+  {
+	int levelCheck = level + 1;
+	for (ArrayList list : symbolTable.values()) {
+		  
+		  //check first entry of each key value pair
+		  if(list.isEmpty() == false)
+		  {
+			  NameDef head = (NameDef)list.get(0);
+			  int currentLevel = head.level;
+			  
+			  //check name of definition and check scope of definiton
+			  if (levelCheck == currentLevel)
+			  {
+				  list.remove(0);
+			  }
+		  }
+	  }
   }
 }
 

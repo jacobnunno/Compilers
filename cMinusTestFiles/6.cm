@@ -5,22 +5,15 @@ int scopeZero;
 
 int minloc(int a) {
   int scopeOne;
-  int scopeOne;
-  int scopeOne;
-  int scopeOne;
+  z = a;
+  a = scopeOne;
+  scopeOne = z;
   if(scopeOne == 2)
   {
-	int z;
-	int z;
-	int z;
 	int z;
 	while(z == 4)
 	{
 		int z;
-		int z;
-		int z;
-		int z;
 	}
   }
 }
-

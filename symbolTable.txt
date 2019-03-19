@@ -1,0 +1,14 @@
+The Symbol Tree is:
+Entering the Global level:
+scopeZero: INT
+Entering the scope for function minloc
+    a: INT
+    scopeOne: INT
+    Entering a new block: 
+        z: INT
+        Entering a new block: 
+            z: INT
+        Leaving the block
+    Leaving the block
+Leaving the scope for function minloc
+Leaving the Global level
