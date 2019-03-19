@@ -2,6 +2,6 @@ import absyn.*;
 
 public class NameDef{
 	String name; 
-	int level; 
+	int scope; 
 	Dec dec;
 }

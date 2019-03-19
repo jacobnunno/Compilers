@@ -202,7 +202,7 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
 		indent( level, scope );
 		NameDef simpleDef = new NameDef();
 		simpleDef.name =  exp.name;
-		simpleDef.level = scope;
+		simpleDef.scope = scope;
 		simpleDef.dec = exp;
 		
 		addHash(simpleDef);
@@ -220,7 +220,7 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
 		
 		NameDef funcDef = new NameDef();
 		funcDef.name =  exp.func;
-		funcDef.level = scope;
+		funcDef.scope = scope;
 		funcDef.dec = exp;
 		
 		addHash(funcDef);
@@ -253,7 +253,7 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
 		
 		NameDef simpleDef = new NameDef();
 		simpleDef.name =  exp.name;
-		simpleDef.level = scope;
+		simpleDef.scope = scope;
 		simpleDef.dec = exp;
 		
 		addHash(simpleDef);
@@ -313,6 +313,7 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
 		  (symbolTable.get(i)).add(0, nDef);
 		  keyFound = true;
 		  printList(symbolTable.get(i));
+		  System.out.println( " Scope:  ");
 	  }
 	}
 	if(!keyFound)
