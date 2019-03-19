@@ -17,6 +17,7 @@ void main(void) {
 }
 
 int x[10];
+int x[10];
 
 void notMain(void) {
   int x; int fac;

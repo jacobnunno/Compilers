@@ -16,10 +16,12 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
   // @param NameDef newOne - the new definition we want to add to the symbol table
   // @return boolean - true if there is a duplicate false if there is no duplicate
   public boolean isDuplicateInScope(NameDef newOne){
+		
 	  for (ArrayList list : symbolTable.values()) {
-		  
+
 		  //check first entry of each key value pair
 		  NameDef head = (NameDef)list.get(0);
+		  
 		  String currentName = head.name;
 		  int currentLevel = head.level;
 		  
@@ -158,8 +160,16 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
 		indent( level );
 		NameDef arrayDef = new NameDef(exp.name,level,exp);
 		
+		//check for duplicate array declaration
+		if (isDuplicateInScope(arrayDef) == false){
+			addHash(arrayDef);
+		}
+		else {
+			int row = arrayDef.dec.row;
+			int col = arrayDef.dec.col;
+			System.err.println("Duplicate Array Declaration: " + arrayDef + " Row " + row + " Col " + col);
+		}
 		
-		addHash(arrayDef);
 		System.out.print(exp.name + ": ");
 		build(exp.typ, level);
 	}
@@ -178,7 +188,9 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
 			addHash(funcDef);
 		}
 		else {
-			System.err.println("Found Duplicate Function Declaration");
+			int row = funcDef.dec.row;
+			int col = funcDef.dec.col;
+			System.err.println("Duplicate Function Declaration: " + funcDef  + " Row " + row + " Col " + col);
 			addHash(funcDef);
 		}
 		
@@ -210,7 +222,16 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
 	{			
 		NameDef simpleDef = new NameDef(exp.name,level,exp);
 		
-		addHash(simpleDef);
+		//check for duplicate simple declaration
+		if (isDuplicateInScope(simpleDef) == false){
+			addHash(simpleDef);
+		}
+		else {
+			int row = simpleDef.dec.row;
+			int col = simpleDef.dec.col;
+			System.err.println("Duplicate Simple Variable Declaration: " + simpleDef + " Row " + row + " Col " + col);
+		}
+		
 		indent( level );
 		System.out.print(exp.name + ": ");
 		exp.typ.accept( this, level);

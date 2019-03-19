@@ -35,6 +35,7 @@ FunctionDec: main - VOID
             VarExp: 
                 SimpleVar: fac
 ArrayDec: x [10] - INT
+ArrayDec: x [10] - INT
 FunctionDec: notMain - VOID
     CompoundExp: 
         SimpleDec: x - INT
@@ -56,6 +57,7 @@ Entering the scope for function main
     Entering a new block: 
     Leaving the block
 Leaving the scope for function main
+x: INT
 x: INT
 Entering the scope for function notMain
     x: INT
