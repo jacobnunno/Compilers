@@ -12,6 +12,26 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
   HashMap<String, ArrayList<NameDef>> symbolTable = new HashMap<String, ArrayList<NameDef>> ();	
   	
 
+  // check for a duplicate definition in the same scope
+  // @param NameDef newOne - the new definition we want to add to the symbol table
+  // @return boolean - true if there is a duplicate false if there is no duplicate
+  public boolean isDuplicateInScope(NameDef newOne){
+	  for (ArrayList list : symbolTable.values()) {
+		  
+		  //check first entry of each key value pair
+		  NameDef head = (NameDef)list.get(0);
+		  String currentName = head.name;
+		  int currentLevel = head.level;
+		  
+		  //check name of definition and check scope of definiton
+		  if (newOne.name.equals(currentName) && newOne.level == currentLevel)
+		  {
+			  return true;
+		  }
+	  }
+	  return false;
+  }
+
   private void indent( int level ) {
     for( int i = 0; i < level * SPACES; i++ ) 
 		System.out.print( " " );
@@ -136,10 +156,8 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
 	  if(exp != null)
 	{	
 		indent( level );
-		NameDef arrayDef = new NameDef();
-		arrayDef.name =  exp.name;
-		arrayDef.level = level;
-		arrayDef.dec = exp;
+		NameDef arrayDef = new NameDef(exp.name,level,exp);
+		
 		
 		addHash(arrayDef);
 		System.out.print(exp.name + ": ");
@@ -153,12 +171,16 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
 		indent( level );
 		System.out.println( "Entering the scope for function "  + exp.func);
 		
-		NameDef funcDef = new NameDef();
-		funcDef.name =  exp.func;
-		funcDef.level = level;
-		funcDef.dec = exp;
+		NameDef funcDef = new NameDef(exp.func,level,exp);
 		
-		addHash(funcDef);
+		//check for duplicate
+		if (isDuplicateInScope(funcDef) == false){
+			addHash(funcDef);
+		}
+		else {
+			System.err.println("Found Duplicate Function Declaration");
+			addHash(funcDef);
+		}
 		
 		level++;
 		exp.params.accept(this, level);
@@ -186,10 +208,7 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
   public void build( SimpleDec exp , int level ) {
 	if(exp != null)
 	{			
-		NameDef simpleDef = new NameDef();
-		simpleDef.name =  exp.name;
-		simpleDef.level = level;
-		simpleDef.dec = exp;
+		NameDef simpleDef = new NameDef(exp.name,level,exp);
 		
 		addHash(simpleDef);
 		indent( level );

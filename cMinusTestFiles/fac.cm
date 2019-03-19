@@ -1,7 +1,10 @@
 /* A program to compute the factorial value of an input */
 
 void main(void) {
-  int x; int fac;
+}
+
+void main(void) {
+  int x; int fac; int x;
   x = input();
   fac = 1;
 
