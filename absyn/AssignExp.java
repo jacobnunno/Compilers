@@ -15,7 +15,7 @@ public class AssignExp extends Exp {
     visitor.visit( this, level );
   }
   
-    public void accept( SemanticAnalyzerBuilder builder, int level, int scope ) {
-    builder.build( this, level, scope );
+    public void accept( SemanticAnalyzerBuilder builder, int level ) {
+    builder.build( this, level );
   }
 }

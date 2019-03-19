@@ -1,92 +1,199 @@
 The abstract syntax tree is:
+ArrayDec: x [10] - INT
+FunctionDec: minloc - INT
+    ArrayDec: a [0] - INT
+    SimpleDec: low - INT
+    SimpleDec: high - INT
+    CompoundExp: 
+        SimpleDec: i - INT
+        SimpleDec: x - INT
+        SimpleDec: k - INT
+        AssignExp:
+            SimpleVar: k
+            VarExp: 
+                SimpleVar: low
+        AssignExp:
+            SimpleVar: x
+            VarExp: 
+                IndexVar: a
+                    VarExp: 
+                        SimpleVar: low
+        AssignExp:
+            SimpleVar: i
+            OpExp: + 
+                VarExp: 
+                    SimpleVar: low
+                IntExp: 1
+        WhileExp: 
+            OpExp: < 
+                VarExp: 
+                    SimpleVar: i
+                VarExp: 
+                    SimpleVar: high
+            CompoundExp: 
+                IfExp:
+                    OpExp: < 
+                        VarExp: 
+                            IndexVar: a
+                                VarExp: 
+                                    SimpleVar: i
+                        VarExp: 
+                            SimpleVar: x
+                    CompoundExp: 
+                        AssignExp:
+                            SimpleVar: x
+                            VarExp: 
+                                IndexVar: a
+                                    VarExp: 
+                                        SimpleVar: i
+                        AssignExp:
+                            SimpleVar: k
+                            VarExp: 
+                                SimpleVar: i
+                    NilExp: 
+                AssignExp:
+                    SimpleVar: i
+                    OpExp: + 
+                        VarExp: 
+                            SimpleVar: i
+                        IntExp: 1
+        ReturnExp: 
+            VarExp: 
+                SimpleVar: k
+FunctionDec: sort - VOID
+    ArrayDec: a [0] - INT
+    SimpleDec: low - INT
+    SimpleDec: high - INT
+    CompoundExp: 
+        SimpleDec: i - INT
+        SimpleDec: k - INT
+        AssignExp:
+            SimpleVar: i
+            VarExp: 
+                SimpleVar: low
+        WhileExp: 
+            OpExp: < 
+                VarExp: 
+                    SimpleVar: i
+                OpExp: - 
+                    VarExp: 
+                        SimpleVar: high
+                    IntExp: 1
+            CompoundExp: 
+                SimpleDec: t - INT
+                AssignExp:
+                    SimpleVar: k
+                    CallExp: minloc
+                        VarExp: 
+                            SimpleVar: a
+                        VarExp: 
+                            SimpleVar: i
+                        VarExp: 
+                            SimpleVar: high
+                AssignExp:
+                    SimpleVar: t
+                    VarExp: 
+                        IndexVar: a
+                            VarExp: 
+                                SimpleVar: k
+                AssignExp:
+                    IndexVar: a
+                        VarExp: 
+                            SimpleVar: k
+                    VarExp: 
+                        IndexVar: a
+                            VarExp: 
+                                SimpleVar: i
+                AssignExp:
+                    IndexVar: a
+                        VarExp: 
+                            SimpleVar: i
+                    VarExp: 
+                        SimpleVar: t
+                AssignExp:
+                    SimpleVar: i
+                    OpExp: + 
+                        VarExp: 
+                            SimpleVar: i
+                        IntExp: 1
 FunctionDec: main - VOID
     CompoundExp: 
-        SimpleDec: x - INT
-        SimpleDec: fac - INT
+        SimpleDec: i - INT
         AssignExp:
-            SimpleVar: x
-            CallExp: input
-        AssignExp:
-            SimpleVar: fac
-            IntExp: 1
+            SimpleVar: i
+            IntExp: 0
         WhileExp: 
-            OpExp: > 
+            OpExp: < 
                 VarExp: 
-                    SimpleVar: x
-                IntExp: 1
+                    SimpleVar: i
+                IntExp: 10
             CompoundExp: 
                 AssignExp:
-                    SimpleVar: fac
-                    OpExp: * 
+                    IndexVar: x
                         VarExp: 
-                            SimpleVar: fac
-                        VarExp: 
-                            SimpleVar: x
+                            SimpleVar: i
+                    CallExp: input
                 AssignExp:
-                    SimpleVar: x
-                    OpExp: - 
+                    SimpleVar: i
+                    OpExp: + 
                         VarExp: 
-                            SimpleVar: x
+                            SimpleVar: i
                         IntExp: 1
-        CallExp: output
+        CallExp: sort
             VarExp: 
-                SimpleVar: fac
-ArrayDec: x [10] - INT
-FunctionDec: notMain - VOID
-    CompoundExp: 
-        SimpleDec: x - INT
-        SimpleDec: fac - INT
+                SimpleVar: x
+            IntExp: 0
+            IntExp: 10
         AssignExp:
-            SimpleVar: x
-            CallExp: input
-        AssignExp:
-            SimpleVar: fac
-            IntExp: 1
-Entering the Global level:
-*****************************
-Entering the scope for function mainNameDef@29453f44 - VOID
-    CompoundExp: 
-        NameDef@5cad8086 - INT
-        NameDef@6e0be858 - INT
-        AssignExp:
-            SimpleVar: x
-            CallExp: input
-        AssignExp:
-            SimpleVar: fac
-            IntExp: 1
+            SimpleVar: i
+            IntExp: 0
         WhileExp: 
-            OpExp: > 
+            OpExp: < 
                 VarExp: 
-                    SimpleVar: x
-                IntExp: 1
+                    SimpleVar: i
+                IntExp: 10
             CompoundExp: 
+                CallExp: output
+                    VarExp: 
+                        IndexVar: x
+                            VarExp: 
+                                SimpleVar: i
                 AssignExp:
-                    SimpleVar: fac
-                    OpExp: * 
+                    SimpleVar: i
+                    OpExp: + 
                         VarExp: 
-                            SimpleVar: fac
-                        VarExp: 
-                            SimpleVar: x
-                AssignExp:
-                    SimpleVar: x
-                    OpExp: - 
-                        VarExp: 
-                            SimpleVar: x
+                            SimpleVar: i
                         IntExp: 1
-        CallExp: output
-            VarExp: 
-                SimpleVar: fac
+The Symbol Tree is:
 Entering the Global level:
-NameDef@61bbe9ba - INT
-Entering the Global level:
-*****************************
-Entering the scope for function notMainNameDef@610455d6 - VOID
-    CompoundExp: 
-        NameDef@511d50c0 - INT
-        NameDef@60e53b93 - INT
-        AssignExp:
-            SimpleVar: x
-            CallExp: input
-        AssignExp:
-            SimpleVar: fac
-            IntExp: 1
+x: INT
+Entering the scope for function minloc
+    a: INT
+    low: INT
+    high: INT
+    i: INT
+    x: INT
+    k: INT
+    Entering a new block: 
+        Entering a new block: 
+        Leaving the block
+    Leaving the block
+Leaving the scope for function minloc
+Entering the scope for function sort
+    a: INT
+    low: INT
+    high: INT
+    i: INT
+    k: INT
+    Entering a new block: 
+        t: INT
+    Leaving the block
+Leaving the scope for function sort
+Entering the scope for function main
+    i: INT
+    Entering a new block: 
+    Leaving the block
+    Entering a new block: 
+    Leaving the block
+Leaving the scope for function main
+Leaving the Global level

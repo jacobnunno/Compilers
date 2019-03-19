@@ -12,277 +12,213 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
   HashMap<String, ArrayList<NameDef>> symbolTable = new HashMap<String, ArrayList<NameDef>> ();	
   	
 
-  private void indent( int level, int scope ) {
-    for( int i = 0; i < level * SPACES; i++ ) System.out.print( " " );
-    scope++;
+  private void indent( int level ) {
+    for( int i = 0; i < level * SPACES; i++ ) 
+		System.out.print( " " );
   }
 
-  public void build( ExpList expList , int level, int scope ) {
+  public void build( ExpList expList , int level ) {
     while( expList != null && expList.head != null) {
-      expList.head.accept( this, level, scope );
+      expList.head.accept( this, level );
       expList = expList.tail;
     } 
   }
   
-  public void build( DecList decList , int level, int scope ) {
+  public void build( DecList decList , int level ) {	  
+	System.out.println( "Entering the Global level:" );
     while( decList != null ) {
-	  System.out.println( "Entering the Global level:" );
-      decList.head.accept( this, level, scope );
+      decList.head.accept( this, level );
       decList = decList.tail;
     } 
+    System.out.println( "Leaving the Global level" );
   }
   
-  public void build( VarDecList varDecList , int level, int scope ) {
+  public void build( VarDecList varDecList , int level ) {
     while( varDecList != null && varDecList.head != null) {
-      varDecList.head.accept( this, level, scope );
+      varDecList.head.accept( this, level );
       varDecList = varDecList.tail;
     } 
   }
 
-  public void build( AssignExp exp , int level, int scope ) {
+  public void build( AssignExp exp , int level ) {
 	if(exp != null)
 	{	
-		indent( level, scope );
-		System.out.println( "AssignExp:" );
-	 level++;
-		exp.lhs.accept( this, level, scope );
-		exp.rhs.accept( this, level, scope );
+		level++;
+		exp.lhs.accept( this, level );
+		exp.rhs.accept( this, level );
 	}
   }
 
-  public void build( IfExp exp , int level, int scope ) {
+  public void build( IfExp exp , int level ) {
 	if(exp != null)
 	{	
-    indent( level, scope );
-    System.out.println( "IfExp:" );
-    level++;
-    exp.test.accept( this, level, scope );
-    exp.thenpart.accept( this, level, scope );
-    if (exp.elsepart != null )
-       exp.elsepart.accept( this, level, scope );
-   }
+		indent( level );
+		System.out.println( "Entering a new block: ");
+		level++;
+		exp.test.accept( this, level );
+		exp.thenpart.accept( this, level );
+		if (exp.elsepart != null )
+		   exp.elsepart.accept( this, level );
+    }
+    level--;
+    indent( level );
+    System.out.println( "Leaving the block");
   }
 
-  public void build( IntExp exp , int level, int scope ) {
-	if(exp != null)
-	{	
-		indent( level, scope );
-		System.out.println( "IntExp: " + exp.value ); 
-	}
+  public void build( IntExp exp , int level ) {
   }
 
-  public void build( OpExp exp , int level, int scope ) {
+  public void build( OpExp exp , int level ) {
 	  if(exp != null)
 	{	
-		indent( level, scope );
-		System.out.print( "OpExp:" ); 
-		switch( exp.op ) {
-		  case OpExp.PLUS:
-			System.out.println( " + " );
-			break;
-		  case OpExp.MINUS:
-			System.out.println( " - " );
-			break;
-		  case OpExp.MUL:
-			System.out.println( " * " );
-			break;
-		  case OpExp.DIV:
-			System.out.println( " / " );
-			break;
-		  case OpExp.EQ:
-			System.out.println( " = " );
-			break;
-		  case OpExp.NE:
-			System.out.println( " != " );
-			break;
-		  case OpExp.LT:
-			System.out.println( " < " );
-			break;
-		  case OpExp.LE:
-			System.out.println( " <= " );
-			break;
-		  case OpExp.GT:
-			System.out.println( " > " );
-			break;
-		  case OpExp.GE:
-			System.out.println( " >= " );
-			break;
-		  default:
-			System.out.println( "Unrecognized operator at line " + exp.row + " and column " + exp.col);
-		}
-	 level++;
-		exp.left.accept( this, level, scope );
-		exp.right.accept( this, level, scope );
+		level++;
+		exp.left.accept( this, level );
+		exp.right.accept( this, level );
 	}
   }
 
-  public void build( VarExp exp , int level, int scope ) {
+  public void build( VarExp exp , int level ) {
 	  if(exp != null)
 	{	
-		indent( level, scope );
-		System.out.println( "VarExp: ");
-	 level++;
+		level++;
 		//this will either be an indexVar or a simpleVar
-		exp.variable.accept ( this, level, scope);    
+		exp.variable.accept ( this, level);    
 	}
   }
 
-  public void build( CallExp exp , int level, int scope ) {
-	  if(exp != null)
-	{	
-		indent( level, scope );
-		System.out.println( "CallExp: " + exp.func );
-	 level++;
-		build(exp.args, level, scope);
-	}
+  public void build( CallExp exp , int level ) {
   }
   
-  public void build( CompoundExp exp , int level, int scope ) {
+  public void build( CompoundExp exp , int level ) {
 	 if(exp != null)
-	{	
-		indent( level, scope );
-		System.out.println( "CompoundExp: ");
-	 level++;
-		build(exp.varDecList, level, scope);
-		build(exp.expList, level, scope);
+	{			
+		build(exp.varDecList, level);
+		build(exp.expList, level);
 	}
   }
   
-  public void build( IndexVar iVar , int level, int scope ) {
+  public void build( IndexVar iVar , int level ) {
 	  if(iVar != null)
 	{	
-		indent( level, scope );
-		System.out.println( "IndexVar: " + iVar.name );
 	 level++;
 		//this goes to SimpleVariable
-		iVar.index.accept( this, level, scope);
+		iVar.index.accept( this, level);
 	}
   }
 
-  public void build( SimpleVar sVar , int level, int scope ) {
-	  if(sVar != null)
+  public void build( SimpleVar sVar , int level ) {
+	if(sVar != null)
 	{	
-		indent( level, scope );
-		System.out.println( "SimpleVar: " + sVar.name );
 	}
   }
   
-  public void build( ReturnExp rExp , int level, int scope ) {
-	  if(rExp != null)
-	{	
-		indent( level, scope );
-		System.out.println( "ReturnExp: ");
-	 level++;
-		rExp.exp.accept( this, level, scope);
-	}
+  public void build( ReturnExp rExp , int level ) {
   }
   
-  public void build( NilExp nExp , int level, int scope ) {
-	  if(nExp != null)
-	{	
-		indent( level, scope );
-		System.out.println( "NilExp: ");
-	}
+  public void build( NilExp nExp , int level ) {
   }
 
-  public void build( WhileExp exp , int level, int scope ) {
+  public void build( WhileExp exp , int level ) {
 	  if(exp != null)
 	{	
-		indent( level, scope );
-		System.out.println( "WhileExp: " );
-	 level++;
-		exp.test.accept( this, level, scope);
-		exp.block.accept( this, level, scope);
+		indent( level );		
+		System.out.println( "Entering a new block: ");
+		level++;
+		exp.test.accept( this, level);
+		exp.block.accept( this, level);		
+		level--;
+		indent( level );
+		System.out.println( "Leaving the block");
 	}
   }
   
-  public void build( ArrayDec exp , int level, int scope ) {
+  public void build( ArrayDec exp , int level ) {
 	  if(exp != null)
 	{	
-		indent( level, scope );
-		NameDef simpleDef = new NameDef();
-		simpleDef.name =  exp.name;
-		simpleDef.scope = scope;
-		simpleDef.dec = exp;
+		indent( level );
+		NameDef arrayDef = new NameDef();
+		arrayDef.name =  exp.name;
+		arrayDef.level = level;
+		arrayDef.dec = exp;
 		
-		addHash(simpleDef);
-		build(exp.typ, level, scope);
+		addHash(arrayDef);
+		System.out.print(exp.name + ": ");
+		build(exp.typ, level);
 	}
   }
   
-  public void build( FunctionDec exp , int level, int scope ) {
+  public void build( FunctionDec exp , int level ) {
 	if(exp != null)
 	{	
-		indent( level, scope );
-		//TODO get rid of these stars
-		System.out.print( "*****************************\n");
-		System.out.print( "Entering the scope for function "  + exp.func);
+		indent( level );
+		System.out.println( "Entering the scope for function "  + exp.func);
 		
 		NameDef funcDef = new NameDef();
 		funcDef.name =  exp.func;
-		funcDef.scope = scope;
+		funcDef.level = level;
 		funcDef.dec = exp;
 		
 		addHash(funcDef);
 		
-		exp.result.accept( this, level, scope);
 		level++;
-		exp.params.accept(this, level, scope);
-		exp.body.accept(this, level, scope);
+		exp.params.accept(this, level);
+		exp.body.accept(this, level);
+		level--;
+		indent( level );		
+		System.out.println( "Leaving the scope for function "  + exp.func);
 	}
   }
   
-  public void build( NameTy exp , int level, int scope ) {
+  public void build( NameTy exp , int level ) {
 	if(exp != null)
 	{	
 		if(exp.typ == NameTy.VOID)
 		{
-			System.out.println( "- VOID");		
+			System.out.println( "VOID");		
 		}
 		else
 		{
-			System.out.println( "- INT");		
+			System.out.println( "INT");		
 		}
 	}
   }
   
-  public void build( SimpleDec exp , int level, int scope ) {
+  public void build( SimpleDec exp , int level ) {
 	if(exp != null)
-	{	
-		indent( level, scope );
-		
+	{			
 		NameDef simpleDef = new NameDef();
 		simpleDef.name =  exp.name;
-		simpleDef.scope = scope;
+		simpleDef.level = level;
 		simpleDef.dec = exp;
 		
 		addHash(simpleDef);
-		
-		
-		build(exp.typ, level, scope);
+		indent( level );
+		System.out.print(exp.name + ": ");
+		exp.typ.accept( this, level);
+		//build(exp.typ, level);
 	}
   }
   
-  public void build( ErrorExp err , int level, int scope ) {
+  public void build( ErrorExp err , int level ) {
 	  if(err != null)
 	{	
-		indent( level, scope );
+		indent( level );
 		System.out.println( "Expression Error on line: " + err.row + " Column: " + err.col);
 	}
   }
   
-  public void build( ErrorDec err , int level, int scope ) {
+  public void build( ErrorDec err , int level ) {
 	  if(err != null)
 	{	
-		indent( level, scope );
+		indent( level );
 		System.out.println( "Declaration Error on line: " + err.row + " Column: " + err.col);
 	}
   }
   
-  public void build( ErrorVarDec err , int level, int scope ) {
+  public void build( ErrorVarDec err , int level ) {
 	  if(err != null)
 	{	
-		indent( level, scope );
+		indent( level );
 		System.out.println( "Variable Declaration Error on line: " + err.row + " Column: " + err.col);
 	}
   }
@@ -307,13 +243,13 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
 	
 	for (String i : symbolTable.keySet()) 
 	{
-		//collision so we add to existing arraylist
+	  //collision so we add to existing arraylist
 	  if(i.equals(key))
 	  {
 		  (symbolTable.get(i)).add(0, nDef);
 		  keyFound = true;
-		  printList(symbolTable.get(i));
-		  System.out.println( " Scope:  ");
+		  //printList(symbolTable.get(i));
+		  //System.out.print( " Scope:  " + nDef.level + " ");
 	  }
 	}
 	if(!keyFound)
@@ -323,7 +259,8 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
 		arrayList.add(0, nDef);
 	
 		symbolTable.put(key, arrayList);
-		printList(arrayList);
+		//printList(arrayList);
+		//System.out.print( " Scope:  " + nDef.level + " ");
 	}  
   }
 }
