@@ -12,3 +12,12 @@ void main(void) {
 
   output(fac);
 }
+
+int x[10];
+
+void notMain(void) {
+  int x; int fac;
+  x = input();
+  fac = 1;
+
+}

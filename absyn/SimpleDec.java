@@ -14,4 +14,7 @@ public class SimpleDec extends VarDec {
   public void accept( AbsynVisitor visitor, int level ) {
     visitor.visit( this, level );
   }
+    public void accept( SemanticAnalyzerBuilder builder, int level, int scope ) {
+    builder.build( this, level, scope );
+  }
 }

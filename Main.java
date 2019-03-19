@@ -23,22 +23,26 @@ class Main {
          System.out.println("The abstract syntax tree is:");
          ShowTreeVisitor visitor = new ShowTreeVisitor();
          result.accept(visitor, 0); 
+         
+         SemanticAnalyzer builder = new SemanticAnalyzer();
+         result.accept(builder, 0, 0);
       }
-      //Checkpoint 2 
-      //set the output to console
-      System.setOut(console);
-      //reading the tree line by line
-      try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-			String line;
-			while ((line = br.readLine()) != null) {
-				
-				System.out.println(line);
-			}
-		}
-    } catch (Exception e) {
+	  //Checkpoint 2
+	  System.setOut(console); 
+      boolean sFlag = false;
+      for(int ctr = 0; ctr < argv.length; ctr ++)
+      {
+          if(argv[ctr].equals("-s"))
+          {
+                sFlag = true;
+          }
+      }
+      //pass tree to semantic analyzer
+	  //new SemanticAnalyzer(result, sFlag);
+    } 
+    catch (Exception e) {
       e.printStackTrace();
     }
   }
 }
-
 
