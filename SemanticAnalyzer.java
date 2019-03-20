@@ -10,6 +10,9 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
   final static int SPACES = 4;
   //make the hashmap
   HashMap<String, ArrayList<NameDef>> symbolTable = new HashMap<String, ArrayList<NameDef>> ();	
+  // record the current function type
+  NameTy currentFunctionType = new NameTy( 0, 0, 0);
+  
   	
 
   private void indent( int level ) {
@@ -89,6 +92,38 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
   }
 
   public void build( CallExp exp , int level ) {
+	  //check if call expression has a function in hashmap
+	  
+	  boolean foundFlag = false;
+	  
+	  for (ArrayList list : symbolTable.values()) {
+		  if(list.isEmpty() == false)
+		  {
+			  for (int i = 0; i < list.size(); i++) 
+			  {
+				  NameDef current = (NameDef)list.get(i);
+				  String currentName = current.name;
+				  if (exp.func.equals(currentName) && current.level == 0)
+				  {
+					  foundFlag = true;
+					  //if we want to add checking the amount of params vs arguments
+					  /*
+					  FunctionDec fDec = (FunctionDec)(current.dec);
+					  if(exp.args.size() == fDec.params.size())
+					  {
+						System.err.println("correct amount of arguments");
+					  }
+					  */
+				  }		
+			  }
+		  }
+	  }
+	  if(!foundFlag)
+	  {
+		  int row = exp.row;
+          int col = exp.col;
+          System.err.println("Undeclared Call: " + exp.func  + " Row " + row + " Col " + col);
+	  } 
   }
   
   public void build( CompoundExp exp , int level ) {
@@ -122,6 +157,8 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
   }
   
   public void build( ReturnExp rExp , int level ) {
+	  //check if rExp has same type as currentFunctionType
+
   }
   
   public void build( NilExp nExp , int level ) {
@@ -145,7 +182,7 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
   }
   
   public void build( ArrayDec exp , int level ) {
-	  if(exp != null)
+	if(exp != null)
 	{	
 		indent( level );
 		NameDef arrayDef = new NameDef(exp.name,level,exp);
@@ -169,6 +206,8 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
   public void build( FunctionDec exp , int level ) {
 	if(exp != null)
 	{	
+		//add as current function type for return statement
+		currentFunctionType = exp.result;
 		indent( level );
 		System.out.println( "Entering the scope for function "  + exp.func);
 		
@@ -348,5 +387,28 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
 		  }
 	  }
   }
+/*  
+  public Exp checkType(Exp exp)
+  {
+	  if(exp instanceOf VarExp)
+	  {
+				if()
+	  }
+	  
+	  else
+	  {
+		  if(exp instanceOf OpExp)
+		  {
+				checkType(exp.lhs);
+				checkType(exp.rhs);
+		  }
+		  else if(exp instanceOf VarExp)
+		  {
+				checkType(exp.variable);
+		  }
+	  }
+	  
+  }*/
+  
 }
 

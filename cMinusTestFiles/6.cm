@@ -1,19 +1,14 @@
 /* A program to perform selection sort 
    on a 10 element array */
 
-int scopeZero;
 
-int minloc(int a) {
-  int scopeOne;
-  z = a;
-  a = scopeOne;
-  scopeOne = z;
-  if(scopeOne == 2)
-  {
-	int z;
-	while(z == 4)
-	{
-		int z;
-	}
+int minloc(int a[], int low, int high) {
+  int i; 
+  int x; 
+  int k;
+  k = low;
+  while (i < high) {
+    if (a[i] < x) {
+    }
   }
 }

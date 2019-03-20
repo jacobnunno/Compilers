@@ -1,33 +1,30 @@
 The abstract syntax tree is:
-SimpleDec: scopeZero - INT
 FunctionDec: minloc - INT
-    SimpleDec: a - INT
+    ArrayDec: a [0] - INT
+    SimpleDec: low - INT
+    SimpleDec: high - INT
     CompoundExp: 
-        SimpleDec: scopeOne - INT
+        SimpleDec: i - INT
+        SimpleDec: x - INT
+        SimpleDec: k - INT
         AssignExp:
-            SimpleVar: z
+            SimpleVar: k
             VarExp: 
-                SimpleVar: a
-        AssignExp:
-            SimpleVar: a
-            VarExp: 
-                SimpleVar: scopeOne
-        AssignExp:
-            SimpleVar: scopeOne
-            VarExp: 
-                SimpleVar: z
-        IfExp:
-            OpExp: = 
+                SimpleVar: low
+        WhileExp: 
+            OpExp: < 
                 VarExp: 
-                    SimpleVar: scopeOne
-                IntExp: 2
+                    SimpleVar: i
+                VarExp: 
+                    SimpleVar: high
             CompoundExp: 
-                SimpleDec: z - INT
-                WhileExp: 
-                    OpExp: = 
+                IfExp:
+                    OpExp: < 
                         VarExp: 
-                            SimpleVar: z
-                        IntExp: 4
+                            IndexVar: a
+                                VarExp: 
+                                    SimpleVar: i
+                        VarExp: 
+                            SimpleVar: x
                     CompoundExp: 
-                        SimpleDec: z - INT
-            NilExp: 
+                    NilExp: 
