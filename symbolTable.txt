@@ -1,15 +1,17 @@
 The Symbol Tree is:
 Entering the Global level:
-Entering the scope for function minloc
-    a: INT
-    low: INT
-    high: INT
-    i: INT
+Entering the scope for function main
+Leaving the scope for function main
+Entering the scope for function main
     x: INT
-    k: INT
+    fac: INT
+    x: INT
     Entering a new block: 
-        Entering a new block: 
-        Leaving the block
     Leaving the block
-Leaving the scope for function minloc
+Leaving the scope for function main
+x: INT
+Entering the scope for function notMain
+    x: INT
+    fac: INT
+Leaving the scope for function notMain
 Leaving the Global level

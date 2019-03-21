@@ -15,4 +15,18 @@ public class VarDecList extends Absyn {
     public void accept( SemanticAnalyzerBuilder builder, int level ) {
     builder.build( this, level );
   }
+  
+  public int getSize()
+  {
+	 int size = 1;
+	 if(this.head != null && this.tail != null)
+	 {
+		 while( this.tail != null ) 
+		 {
+			  size ++;
+			  this.tail = this.tail.tail;
+		 } 	 
+	 }
+    return size;
+  }
 }
