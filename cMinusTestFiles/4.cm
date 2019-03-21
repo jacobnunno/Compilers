@@ -2,15 +2,13 @@
 
 	
 	Errors:
-		declaratino and assignment at the same time
-		error in if statement expressions
+		Function returns an int when it should return void
 		
 */
 
 void main(int x, int y)
 {
-	int year = a;
-	
+	int year;
 	int leap;
 	int notLeap;
 	leap = 2;
@@ -18,7 +16,7 @@ void main(int x, int y)
 
 	if(year = 0)
 	{
-		if(year % 100 != 0)
+		if(year != 0)
 		{
 			output(leap);
 		}
@@ -34,4 +32,6 @@ void main(int x, int y)
 	{
 		output(notLeap);
 	}
+	
+	return year;
 }

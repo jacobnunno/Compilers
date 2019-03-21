@@ -1,20 +1,18 @@
 /*A program to check if a integer is even or odd
 
 	Errors:
-	There is no semi colon on the fifth line
-	There is no ending " in the first output statement
+	even was never declared
 
 */
 
-void main(VOID)
+void main(int k)
 {
 	int evenOrOdd;
-	int even;
 	int odd;
 	even = 2;
 	odd = 1;
 
-	evenOrOdd = 4
+	evenOrOdd = 4;
 
 	if(evenOrOdd == 0)
 	{

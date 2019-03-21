@@ -49,11 +49,11 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
     } 
   }
 
-  public void build( AssignExp exp , int level ) {
+  public void build( AssignExp exp , int level ) { 
 	if(exp != null)
 	{	
 		//level++;
-		//left side only ever simpleVar
+		//left side only ever simpleVar, indexVar
 		exp.lhs.accept( this, level );
 		//
 		//check if call, if call void then error
@@ -285,6 +285,15 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
 				System.err.println("Return not correct type: "  + " Row " + row + " Col " + col);
 			}
 			else if(check && currentFunctionType.typ == 0)
+			{
+				int row = rExp.row + 1;
+				int col = rExp.col + 1;
+				System.err.println("Return not correct type: "  + " Row " + row + " Col " + col);
+			}
+		}
+		else
+		{
+			if(currentFunctionType.typ == 0)
 			{
 				int row = rExp.row + 1;
 				int col = rExp.col + 1;

@@ -9,9 +9,12 @@ generate an executable program called "cminus".
 
   To test source code like "fac.cm", type 
 
-    "java -classpath /usr/share/java/cup.jar:. Main cMinusTestFiles/fac.cm" 
+    "java -classpath /usr/share/java/cup.jar:. Main cMinusTestFiles/fac.cm -s -a" 
 
-and the syntax tree will be displayed on the screen.
+	If you want to generate a symbol table, add -s to the arguments. A file named: symbolTable.txt will be generated.
+	
+	If you want to generate a syntax tree, add -a to the arguments. A file named: syntaxTree.txt will be generated.
+
 
   To rebuild the parser, type "make clean" and type "make" again.
 
