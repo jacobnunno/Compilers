@@ -19,6 +19,8 @@ class Main {
 	  String file2 = "symbolTable.txt";
 	  PrintStream table = new PrintStream(new File(file2)); 
       PrintStream console = System.out; 
+      String file3 = "zAssemblyCode.txt";
+	  PrintStream code = new PrintStream(new File(file3)); 
       System.setOut(tree); 
       /* Start the parser */
       parser p = new parser(new Lexer(new FileReader(argv[0])));
@@ -54,6 +56,7 @@ class Main {
 	  }
 	  if (SHOW_CODE)
 	  {
+		  System.setOut(code); 
 		  System.out.println("The Code Generated is:");
 		  CodeGenerator generator = new CodeGenerator();
           result.accept(generator, 0);

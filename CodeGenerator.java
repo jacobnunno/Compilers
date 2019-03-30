@@ -4,9 +4,18 @@ import java.io.*;
 public class CodeGenerator implements AbsynVisitor {
 
   final static int SPACES = 4;
+  static int nameCtr = 0;
+  public int iOffset = 0;
+  public int globalOffset = 0;
 
   private void indent( int level ) {
     for( int i = 0; i < level * SPACES; i++ ) System.out.print( " " );
+  }
+  
+  private String newTemp()
+  {
+	  nameCtr++;
+	  return "t" + Integer.toString(nameCtr);  
   }
 
   public void visit( ExpList expList, int level ) {
