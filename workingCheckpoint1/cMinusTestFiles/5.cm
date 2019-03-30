@@ -1,0 +1,44 @@
+/*A program to find the largest integer from three numbers
+
+
+	Errors: 
+		no semi colon after b declaration
+		if statement operation broken
+		
+		
+
+
+*/
+
+void main(VOID)
+{
+	int a;
+	int b
+	int c;
+	
+	a = 45;
+	b = 100;
+	c = 153;
+
+	if(a >= b )
+	{
+		if(a >= c )
+		{
+			output(a);
+		}
+	}
+	if(b >= a )
+	{
+		if(b >= c )
+		{
+			output(b);
+		}
+	}
+	if(c >= a )
+	{
+		if(c !>= b )
+		{
+			output(c);
+		}
+	}
+}

@@ -1,0 +1,21 @@
+/*A program to swap two variables
+
+	Errors:
+		Duplication function declaration of the function main
+
+*/
+
+void main(int a)
+{
+	int temp;
+	int b;
+
+	temp = a;
+	a = b;
+	b = temp;
+}
+
+void main(int a)
+{
+
+}
