@@ -1,0 +1,37 @@
+/*A program to find out if a given year is a leap year
+
+	
+	Errors:
+		Function returns an int when it should return void
+		
+*/
+
+void main(int x, int y)
+{
+	int year;
+	int leap;
+	int notLeap;
+	leap = 2;
+	notLeap = 1;
+
+	if(year = 0)
+	{
+		if(year != 0)
+		{
+			output(leap);
+		}
+		else 
+		{
+			if(year == 0)
+			{
+				output(leap);
+			}
+		}
+	}
+	else
+	{
+		output(notLeap);
+	}
+	
+	return year;
+}

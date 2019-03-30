@@ -1,0 +1,25 @@
+/*A program to check if a integer is even or odd
+
+	Errors:
+	even was never declared
+
+*/
+
+void main(int k)
+{
+	int evenOrOdd;
+	int odd;
+	even = 2;
+	odd = 1;
+
+	evenOrOdd = 4;
+
+	if(evenOrOdd == 0)
+	{
+		output(even);
+	}
+	else
+	{
+		output(odd);
+	}
+}
