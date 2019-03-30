@@ -9,7 +9,7 @@ generate an executable program called "cminus".
 
   To test source code like "fac.cm", type 
 
-    "java -classpath /usr/share/java/cup.jar:. Main cMinusTestFiles/fac.cm -s -a" 
+    "java -classpath /usr/share/java/cup.jar:. Main cMinusTestFiles/fac.cm -s -a - c" 
 
 	If you want to generate a symbol table, add -s to the arguments. A file named: symbolTable.txt will be generated.
 	
