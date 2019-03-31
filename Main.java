@@ -56,6 +56,13 @@ class Main {
 	  }
 	  if (SHOW_CODE)
 	  {
+		  //need to run semantic analyser to initialize the function pointer before generating code or it will have a null pointer
+		  System.setOut(table); 
+		  System.out.println("The Symbol Tree is:");
+		  SemanticAnalyzer builder = new SemanticAnalyzer();
+          result.accept(builder, 0);
+          
+          //now we generate the code
 		  System.setOut(code); 
 		  System.out.println("The Code Generated is:");
 		  CodeGenerator generator = new CodeGenerator();

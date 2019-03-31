@@ -201,7 +201,7 @@ public void visit( DecList decList, int level ) {
   }
   
   public void visit( SimpleDec exp, int level ) {
-	  if(exp != null)
+	if(exp != null)
 	{	
 		visit(exp.typ, level);
 	}

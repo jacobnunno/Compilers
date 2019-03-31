@@ -13,5 +13,7 @@ The Code Generated is:
 9:	OUT  0,0,0
 10:	LD  7,-1(5)
 3:	LDA  7,7(7)
+pointer is:minloc
+pointer is:sort
 end of execution
 HALT  0,0,0

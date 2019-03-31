@@ -1,0 +1,33 @@
+The Symbol Tree is:
+Entering the Global level:
+x: INT
+Entering the scope for function minloc
+    a: INT
+    low: INT
+    high: INT
+    i: INT
+    x: INT
+    k: INT
+    Entering a new block: 
+        Entering a new block: 
+        Leaving the block
+    Leaving the block
+Leaving the scope for function minloc
+Entering the scope for function sort
+    a: INT
+    low: INT
+    high: INT
+    i: INT
+    k: INT
+    Entering a new block: 
+        t: INT
+    Leaving the block
+Leaving the scope for function sort
+Entering the scope for function main
+    i: INT
+    Entering a new block: 
+    Leaving the block
+    Entering a new block: 
+    Leaving the block
+Leaving the scope for function main
+Leaving the Global level
