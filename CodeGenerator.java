@@ -5,8 +5,16 @@ public class CodeGenerator implements AbsynVisitor {
 
   final static int SPACES = 4;
   static int nameCtr = 0;
+  
   public int iOffset = 0;
   public int globalOffset = 0;
+  
+  //line counter
+  public int emitLoc = 0;
+  //points to the top of the frame
+  public int highEmitLoc = 0;
+  //not sure if it should init as true or false
+  public boolean TraceCode = false;
 
   private void indent( int level ) {
     for( int i = 0; i < level * SPACES; i++ ) System.out.print( " " );
@@ -25,11 +33,35 @@ public class CodeGenerator implements AbsynVisitor {
     } 
   }
   
-   public void visit( DecList decList, int level ) {
+public void visit( DecList decList, int level ) {
+	System.out.println("* Standard prelude");
+	//prelude
+
+	System.out.println("0:	LD  6,0(0)");
+	System.out.println("1:	LDA  5,0(6)");
+	System.out.println("2:	ST  0,0(0)");
+	System.out.println("4:	ST  0,-1(5)");
+	System.out.println("5:	IN  0,0,0");
+	System.out.println("6:	LD  7,-1(5)");
+	System.out.println("7:	ST  0,-1(5)");
+	System.out.println("8:	LD  0,-2(5)");
+	System. out.println("9:	OUT  0,0,0");
+	System. out.println("10:	LD  7,-1(5)");
+	System.out.println("3:	LDA  7,7(7)");
+      
+      
+    //generating code  
+      
     while( decList != null ) {
       decList.head.accept( this, level );
       decList = decList.tail;
     } 
+    
+    
+    
+    //end of execution
+    System.out.println("end of execution");
+    System.out.println("HALT  0,0,0");
   }
   
   public void visit( VarDecList varDecList, int level ) {
@@ -195,4 +227,51 @@ public class CodeGenerator implements AbsynVisitor {
 	}
   }
 
+	public void emitComment(String comment)
+	{
+			 System.out.println("* " + comment);
+	}
+	
+	public int emitSkip( int distance ) 
+	{
+		int i= emitLoc;
+		emitLoc += distance;
+		if( highEmitLoc < emitLoc) 
+			highEmitLoc= emitLoc;
+		return i;
+	}
+	
+	void emitBackup( int loc) 
+	{
+		if(loc > highEmitLoc)
+		{
+			emitComment("BUG in emitBackup"); 
+		}
+		emitLoc = loc;
+	} 
+	
+	void emitRestore() 
+	{
+		emitLoc= highEmitLoc;
+	}
+	
+	void emitRM_Abs( String op, int r, int a, String c ) 
+	{
+		System.out.println(emitLoc + ":		" + op +  " " + r + ", " + (a - (emitLoc + 1)) + "(" + r + ")");
+		emitLoc++;
+		if( TraceCode) 
+			System.out.println("	" + c );
+		if( highEmitLoc < emitLoc)
+			highEmitLoc = emitLoc;
+	}
+	
+	void emitRM( ) 
+	{
+
+	}
+	
+	void emitRO(  ) 
+	{
+
+	}
 }

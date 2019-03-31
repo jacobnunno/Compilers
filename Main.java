@@ -59,6 +59,8 @@ class Main {
 		  System.setOut(code); 
 		  System.out.println("The Code Generated is:");
 		  CodeGenerator generator = new CodeGenerator();
+		  System.out.println("* C-Minus Compilation to TM Code");
+		  System.out.println("* File: " + argv[0]);
           result.accept(generator, 0);
 	  }
     } 

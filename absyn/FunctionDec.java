@@ -7,6 +7,9 @@ public class FunctionDec extends Dec {
 	public VarDecList params;
 	public CompoundExp body;
 	
+	public int functionAddr;
+    public int frameOffset;
+	
 	public FunctionDec( int row, int col, NameTy result, String func, VarDecList params, CompoundExp body) {
 		this.row = row;
 		this.col = col;

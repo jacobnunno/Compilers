@@ -1,5 +1,17 @@
 The Code Generated is:
-t1
-t2
-t3
-t4
+* C-Minus Compilation to TM Code
+* File: cMinusTestFiles/sort.cm
+* Standard prelude
+0:	LD  6,0(0)
+1:	LDA  5,0(6)
+2:	ST  0,0(0)
+4:	ST  0,-1(5)
+5:	IN  0,0,0
+6:	LD  7,-1(5)
+7:	ST  0,-1(5)
+8:	LD  0,-2(5)
+9:	OUT  0,0,0
+10:	LD  7,-1(5)
+3:	LDA  7,7(7)
+end of execution
+HALT  0,0,0

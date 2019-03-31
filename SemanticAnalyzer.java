@@ -170,6 +170,9 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
 					  foundFlag = true;
 					  
 					  FunctionDec fDec = (FunctionDec)current.dec;
+					  //checkpoint3 add pointer to callExp
+					  exp.functionPointer = fDec;
+					  
 					  int FunctionListSize;
 					  if(fDec.params != null)
 					  {
