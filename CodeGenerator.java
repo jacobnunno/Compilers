@@ -20,6 +20,35 @@ public class CodeGenerator implements AbsynVisitor {
     for( int i = 0; i < level * SPACES; i++ ) System.out.print( " " );
   }
   
+  private void emitCode(String op, int a, int b, int c, String stuff )
+  {
+	  emitLoc++;
+	  System.out.println(emitLoc + ":		" + op +  " " + a + ", " + b + "(" + c + ")" + " " + stuff);
+  }
+  
+  private void loadCode(Exp exp)
+  {
+	  if(exp instanceof VarExp)
+	  {
+		  //might not be LDA
+		  emitCode("LOADING OP", 0, 0,0, "loading varExp" );
+	  }
+	  else if(exp instanceof AssignExp)
+	  {
+		  //might not be LDA
+		emitCode("LOADING OP", 0, 0,0, "loading assign left hand side" );  
+	  }
+	  else if(exp instanceof IntExp)
+	  {
+		emitCode("LDC", 0, 0,0, "loading int" );	  
+	  }
+	  else if(exp instanceof CallExp)
+	  {
+		  //might not be LDA
+			emitCode("LOADING OP", 0, 0,0, "loading callExp" );
+	  }
+  }
+  
   private String newTemp()
   {
 	  nameCtr++;
@@ -48,6 +77,7 @@ public void visit( DecList decList, int level ) {
 	System. out.println("9:	OUT  0,0,0");
 	System. out.println("10:	LD  7,-1(5)");
 	System.out.println("3:	LDA  7,7(7)");
+	emitLoc = 10;
       
       
     //generating code  
@@ -74,10 +104,42 @@ public void visit( DecList decList, int level ) {
   public void visit( AssignExp exp, int level ) {
 	if(exp != null)
 	{	
-
 		//level++;
-		exp.lhs.accept( this, level );
 		exp.rhs.accept( this, level );
+		
+		//left hand side stuff
+		if(exp.lhs instanceof SimpleVar)
+		{
+			//System.out.println("***************	lhs simpleVar");
+			//TODO
+			VarExp varE = new VarExp(0,0,exp.lhs);
+			loadCode(varE);
+			//not sure about this
+			emitCode("ST", 0, 0,0, "lhs store value" );
+		}
+		else if(exp.lhs instanceof IndexVar)
+		{
+		}	
+		
+		//right hand side stuff
+		if(exp.rhs instanceof VarExp){
+			//TODO
+			loadCode(exp.rhs);
+			//not sure about this
+			emitCode("ST", 0, 0,0, " rhs store value" );
+		}
+		else if(exp.rhs instanceof IntExp)
+		{
+			
+		System.out.println("***************	intExp");
+			loadCode(exp.rhs);
+		}
+		else if(exp.rhs instanceof OpExp)
+		{
+			System.out.println("***************		opExp");
+			loadCode(exp.rhs);
+		}
+
 	}
   }
 
@@ -91,12 +153,13 @@ public void visit( DecList decList, int level ) {
     if (exp.elsepart != null )
        exp.elsepart.accept( this, level );
    }
+   System.out.println("ifExp");
   }
 
   public void visit( IntExp exp, int level ) {
 	if(exp != null)
 	{	
-
+		System.out.println("intExp");
 	}
   }
 
@@ -106,6 +169,7 @@ public void visit( DecList decList, int level ) {
 		//level++;
 		exp.left.accept( this, level );
 		exp.right.accept( this, level );
+		System.out.println("opExp");
 	}
   }
 
@@ -115,6 +179,7 @@ public void visit( DecList decList, int level ) {
 		//level++;
 		//this will either be an indexVar or a simpleVar
 		exp.variable.accept ( this, level);    
+		System.out.println("varExp");
 	}
   }
 
@@ -123,6 +188,7 @@ public void visit( DecList decList, int level ) {
 	{	
 		//level++;
 		visit(exp.args, level);
+		System.out.println("callExp");
 	}
   }
   
@@ -132,6 +198,7 @@ public void visit( DecList decList, int level ) {
 		//level++;
 		visit(exp.varDecList, level);
 		visit(exp.expList, level);
+		System.out.println("compundExp");
 	}
   }
   
@@ -139,15 +206,17 @@ public void visit( DecList decList, int level ) {
 	  if(iVar != null)
 	{	
 		//level++;
-		//this goes to SimpleVariable
+		//this is an exp
+		String codestr = "";
 		iVar.index.accept( this, level);
+		System.out.println("indexVar");
 	}
   }
 
   public void visit( SimpleVar sVar, int level ) {
 	  if(sVar != null)
 	{	
-
+		System.out.println("simpleVar");
 	}
   }
   
@@ -156,6 +225,7 @@ public void visit( DecList decList, int level ) {
 	{	
 		//level++;
 		rExp.exp.accept( this, level);
+		System.out.println("returnExp");
 	}
   }
   
@@ -172,6 +242,7 @@ public void visit( DecList decList, int level ) {
 		//level++;
 		exp.test.accept( this, level);
 		exp.block.accept( this, level);
+		System.out.println("whileExp");
 	}
   }
   
@@ -180,6 +251,7 @@ public void visit( DecList decList, int level ) {
 	{	
 		//exp.size.accept( this, level);
 		visit(exp.typ, level);
+		System.out.println("arrayDec");
 	}
   }
   
@@ -190,6 +262,7 @@ public void visit( DecList decList, int level ) {
 		//level++;
 		exp.params.accept(this, level);
 		exp.body.accept(this, level);
+		System.out.println("functionDec");
 	}
   }
   
@@ -204,6 +277,7 @@ public void visit( DecList decList, int level ) {
 	if(exp != null)
 	{	
 		visit(exp.typ, level);
+		System.out.println("simpleDec");
 	}
   }
   
@@ -241,7 +315,7 @@ public void visit( DecList decList, int level ) {
 		return i;
 	}
 	
-	void emitBackup( int loc) 
+	public void emitBackup( int loc) 
 	{
 		if(loc > highEmitLoc)
 		{
@@ -250,12 +324,12 @@ public void visit( DecList decList, int level ) {
 		emitLoc = loc;
 	} 
 	
-	void emitRestore() 
+	public void emitRestore() 
 	{
 		emitLoc= highEmitLoc;
 	}
 	
-	void emitRM_Abs( String op, int r, int a, String c ) 
+	public void emitRM_Abs( String op, int r, int a, String c ) 
 	{
 		System.out.println(emitLoc + ":		" + op +  " " + r + ", " + (a - (emitLoc + 1)) + "(" + r + ")");
 		emitLoc++;
@@ -265,12 +339,12 @@ public void visit( DecList decList, int level ) {
 			highEmitLoc = emitLoc;
 	}
 	
-	void emitRM( ) 
+	public void emitRM( ) 
 	{
 
 	}
 	
-	void emitRO(  ) 
+	public void emitRO(  ) 
 	{
 
 	}

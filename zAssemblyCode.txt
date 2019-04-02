@@ -1,6 +1,6 @@
 The Code Generated is:
 * C-Minus Compilation to TM Code
-* File: cMinusTestFiles/sort.cm
+* File: cMinusTestFiles/test.cm
 * Standard prelude
 0:	LD  6,0(0)
 1:	LDA  5,0(6)
@@ -13,7 +13,14 @@ The Code Generated is:
 9:	OUT  0,0,0
 10:	LD  7,-1(5)
 3:	LDA  7,7(7)
-pointer is:minloc
-pointer is:sort
+simpleDec
+simpleDec
+intExp
+12:		LOADING OP 0, 0(0) loading varExp
+13:		ST 0, 0(0) lhs store value
+***************	intExp
+14:		LDC 0, 0(0) loading int
+compundExp
+functionDec
 end of execution
 HALT  0,0,0
