@@ -13,7 +13,11 @@ The Code Generated is:
 9:	OUT  0,0,0
 10:	LD  7,-1(5)
 3:	LDA  7,7(7)
-11:	LDA 0, -2(0) loading varExp
-12:	LDC 0, 8(0) loading int
+12:	ST 0, -1(5) store return address
+13:	LDA 0, -2(5) loading varExp
+14:	ST 0, -4(5) store value
+15:	LDC 0, 8(0) loading int
+16:	LD 7, -1(5) return back to caller
+11:	LDA 7, 5(7) jump forward
 end of execution
 HALT  0,0,0

@@ -4,27 +4,28 @@ import java.io.*;
 public class CodeGenerator implements AbsynVisitor {
 
   final static int SPACES = 4;
-  static int varOffset = -1;
-  
-  public int globalOffset = 0;
-  
+
+  /***************	iMem offsets	*******************/
   //line counter
   public int emitLoc = 0;
   //points to the top of the frame
   public int highEmitLoc = 0;
+  
+   /***************	dMem offsets	*******************/
+  //ths is GP
+  public int globalOffset = 0;
+  //this is FP
+  public int frameOffset = -1;
+  
   //not sure if it should init as true or false
   public boolean TraceCode = false;
-
   
   private void loadCode(Exp exp)
   {
 	  if(exp instanceof VarExp)
 	  {
 		  //check offset
-		  VarExp tempVarExp = (VarExp)exp;
-		  SimpleVar tempVar = (SimpleVar)(tempVarExp.variable);
-		  SimpleDec tempDec = tempVar.simpleDecPointer;
-		  emitRM("LDA", 0, tempDec.offset ,0, "loading varExp" );
+		  
 	  }
 	  else if(exp instanceof AssignExp)
 	  {
@@ -43,10 +44,10 @@ public class CodeGenerator implements AbsynVisitor {
 	  }
   }
   
-  private int newVarOffset()
+  private int newframeOffset()
   {
-	  varOffset--;
-	  return varOffset;  
+	  frameOffset--;
+	  return frameOffset;  
   }
 
   public void visit( ExpList expList, int level ) {
@@ -71,7 +72,7 @@ public void visit( DecList decList, int level ) {
 	System. out.println("9:	OUT  0,0,0");
 	System. out.println("10:	LD  7,-1(5)");
 	System.out.println("3:	LDA  7,7(7)");
-	emitLoc = 10;
+	emitLoc = 11;
       
       
     //generating code  
@@ -106,10 +107,13 @@ public void visit( DecList decList, int level ) {
 		{
 			//System.out.println("***************	lhs simpleVar");
 			//TODO
-			VarExp varE = new VarExp(0,0,exp.lhs);
-			loadCode(varE);
-			//not sure about this
-			//emitRM("ST", 0, 0,0, "lhs store value" );
+			VarExp tempVarExp = new VarExp(0,0,exp.lhs);
+			SimpleVar tempVar = (SimpleVar)(tempVarExp.variable);
+			SimpleDec tempDec = tempVar.simpleDecPointer;
+			emitRM("LDA", 0, tempDec.offset ,5, "loading varExp" );
+			
+			//Storing
+			emitRM("ST", 0, newframeOffset(), 5, "store value" );
 		}
 		else if(exp.lhs instanceof IndexVar)
 		{
@@ -251,12 +255,25 @@ public void visit( DecList decList, int level ) {
   }
   
   public void visit( FunctionDec exp, int level ) {
-	  if(exp != null)
+	if(exp != null)
 	{	
+		exp.functionAddr = emitLoc;
+		emitLoc++;
+		emitRM("ST", 0, -1, 5, "store return address");
+
+
 		exp.result.accept( this, level);
-		//level++;
+		//level call param list
 		exp.params.accept(this, level);
+		//level call body
 		exp.body.accept(this, level);
+		//return
+		//not sure if this is always -1 for the b
+		emitRM("LD", 7, -1, 5, "return back to caller");
+		System.out.println(exp.functionAddr + ":	" + "LDA 7, " +  (emitLoc - exp.functionAddr -1)  + "(7)" + " " + "jump forward");
+		frameOffset = -1;
+		
+		
 		//System.out.println("functionDec");
 	}
   }
@@ -272,7 +289,7 @@ public void visit( DecList decList, int level ) {
 	if(exp != null)
 	{	
 		visit(exp.typ, level);
-		exp.offset = newVarOffset();
+		exp.offset = newframeOffset();
 		exp.nestLevel = level;
 		//System.out.println("simpleDec " + exp.offset);
 	}
@@ -338,16 +355,16 @@ public void visit( DecList decList, int level ) {
 	
   private void emitRM(String op, int a, int b, int c, String stuff )
 	{
+	  System.out.println(emitLoc + ":	" + op +  " " + a + ", " + b + "(" + c + ")" + " " + stuff);	  
 	  emitLoc++;
-	  System.out.println(emitLoc + ":	" + op +  " " + a + ", " + b + "(" + c + ")" + " " + stuff);
 	  if( highEmitLoc < emitLoc)
 			highEmitLoc = emitLoc;
   }
 
   private void emitRO(String op, int a, int b, int c, String stuff )
   {
-	  emitLoc++;
 	  System.out.println(emitLoc + ":	" + op +  " " + a + ", " + b + "," + c + " " + stuff);
+	  emitLoc++;
 	  if( highEmitLoc < emitLoc)
 			highEmitLoc = emitLoc;
   }
