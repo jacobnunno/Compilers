@@ -5,4 +5,4 @@ FunctionDec: main - VOID
         SimpleDec: fac - INT
         AssignExp:
             SimpleVar: x
-            IntExp: 1
+            IntExp: 8

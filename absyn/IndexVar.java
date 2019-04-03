@@ -4,6 +4,8 @@ public class IndexVar extends Var {
   public String name;
   public Exp index;
   public int size = 0;
+  
+  public ArrayDec arrayDecPointer;
 
   public IndexVar( int row, int col, String name, Exp index ) {
     this.row = row;

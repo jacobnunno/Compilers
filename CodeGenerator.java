@@ -4,9 +4,8 @@ import java.io.*;
 public class CodeGenerator implements AbsynVisitor {
 
   final static int SPACES = 4;
-  static int nameCtr = 0;
+  static int varOffset = -1;
   
-  public int iOffset = 0;
   public int globalOffset = 0;
   
   //line counter
@@ -16,43 +15,38 @@ public class CodeGenerator implements AbsynVisitor {
   //not sure if it should init as true or false
   public boolean TraceCode = false;
 
-  private void indent( int level ) {
-    for( int i = 0; i < level * SPACES; i++ ) System.out.print( " " );
-  }
-  
-  private void emitCode(String op, int a, int b, int c, String stuff )
-  {
-	  emitLoc++;
-	  System.out.println(emitLoc + ":		" + op +  " " + a + ", " + b + "(" + c + ")" + " " + stuff);
-  }
   
   private void loadCode(Exp exp)
   {
 	  if(exp instanceof VarExp)
 	  {
-		  //might not be LDA
-		  emitCode("LOADING OP", 0, 0,0, "loading varExp" );
+		  //check offset
+		  VarExp tempVarExp = (VarExp)exp;
+		  SimpleVar tempVar = (SimpleVar)(tempVarExp.variable);
+		  SimpleDec tempDec = tempVar.simpleDecPointer;
+		  emitRM("LDA", 0, tempDec.offset ,0, "loading varExp" );
 	  }
 	  else if(exp instanceof AssignExp)
 	  {
 		  //might not be LDA
-		emitCode("LOADING OP", 0, 0,0, "loading assign left hand side" );  
+			emitRM("LDA", 0, 0,0, "load assign value" );  
 	  }
 	  else if(exp instanceof IntExp)
 	  {
-		emitCode("LDC", 0, 0,0, "loading int" );	  
+		  
+		emitRM("LDC", 0, ((IntExp)exp).value, 0, "loading int" );	  
 	  }
 	  else if(exp instanceof CallExp)
 	  {
 		  //might not be LDA
-			emitCode("LOADING OP", 0, 0,0, "loading callExp" );
+			//emitCode("LOADING OP", 0, 0,0, "loading callExp" );
 	  }
   }
   
-  private String newTemp()
+  private int newVarOffset()
   {
-	  nameCtr++;
-	  return "t" + Integer.toString(nameCtr);  
+	  varOffset--;
+	  return varOffset;  
   }
 
   public void visit( ExpList expList, int level ) {
@@ -115,7 +109,7 @@ public void visit( DecList decList, int level ) {
 			VarExp varE = new VarExp(0,0,exp.lhs);
 			loadCode(varE);
 			//not sure about this
-			emitCode("ST", 0, 0,0, "lhs store value" );
+			//emitRM("ST", 0, 0,0, "lhs store value" );
 		}
 		else if(exp.lhs instanceof IndexVar)
 		{
@@ -126,17 +120,17 @@ public void visit( DecList decList, int level ) {
 			//TODO
 			loadCode(exp.rhs);
 			//not sure about this
-			emitCode("ST", 0, 0,0, " rhs store value" );
+			//emitRM("ST", 0, 0,0, " rhs store value" );
 		}
 		else if(exp.rhs instanceof IntExp)
 		{
 			
-		System.out.println("***************	intExp");
+		//System.out.println("***************	intExp");
 			loadCode(exp.rhs);
 		}
 		else if(exp.rhs instanceof OpExp)
 		{
-			System.out.println("***************		opExp");
+			//System.out.println("***************		opExp");
 			loadCode(exp.rhs);
 		}
 
@@ -153,13 +147,13 @@ public void visit( DecList decList, int level ) {
     if (exp.elsepart != null )
        exp.elsepart.accept( this, level );
    }
-   System.out.println("ifExp");
+   //System.out.println("ifExp");
   }
 
   public void visit( IntExp exp, int level ) {
 	if(exp != null)
 	{	
-		System.out.println("intExp");
+		//System.out.println("intExp");
 	}
   }
 
@@ -169,7 +163,8 @@ public void visit( DecList decList, int level ) {
 		//level++;
 		exp.left.accept( this, level );
 		exp.right.accept( this, level );
-		System.out.println("opExp");
+		//System.out.println("opExp");
+		
 	}
   }
 
@@ -179,7 +174,7 @@ public void visit( DecList decList, int level ) {
 		//level++;
 		//this will either be an indexVar or a simpleVar
 		exp.variable.accept ( this, level);    
-		System.out.println("varExp");
+		//System.out.println("varExp");
 	}
   }
 
@@ -188,7 +183,7 @@ public void visit( DecList decList, int level ) {
 	{	
 		//level++;
 		visit(exp.args, level);
-		System.out.println("callExp");
+		//System.out.println("callExp");
 	}
   }
   
@@ -198,7 +193,7 @@ public void visit( DecList decList, int level ) {
 		//level++;
 		visit(exp.varDecList, level);
 		visit(exp.expList, level);
-		System.out.println("compundExp");
+		//System.out.println("compundExp");
 	}
   }
   
@@ -209,14 +204,14 @@ public void visit( DecList decList, int level ) {
 		//this is an exp
 		String codestr = "";
 		iVar.index.accept( this, level);
-		System.out.println("indexVar");
+		//System.out.println("indexVar");
 	}
   }
 
   public void visit( SimpleVar sVar, int level ) {
 	  if(sVar != null)
 	{	
-		System.out.println("simpleVar");
+		//System.out.println("simpleVar");
 	}
   }
   
@@ -225,7 +220,7 @@ public void visit( DecList decList, int level ) {
 	{	
 		//level++;
 		rExp.exp.accept( this, level);
-		System.out.println("returnExp");
+		//System.out.println("returnExp");
 	}
   }
   
@@ -242,7 +237,7 @@ public void visit( DecList decList, int level ) {
 		//level++;
 		exp.test.accept( this, level);
 		exp.block.accept( this, level);
-		System.out.println("whileExp");
+		//System.out.println("whileExp");
 	}
   }
   
@@ -251,7 +246,7 @@ public void visit( DecList decList, int level ) {
 	{	
 		//exp.size.accept( this, level);
 		visit(exp.typ, level);
-		System.out.println("arrayDec");
+		//System.out.println("arrayDec");
 	}
   }
   
@@ -262,7 +257,7 @@ public void visit( DecList decList, int level ) {
 		//level++;
 		exp.params.accept(this, level);
 		exp.body.accept(this, level);
-		System.out.println("functionDec");
+		//System.out.println("functionDec");
 	}
   }
   
@@ -277,7 +272,9 @@ public void visit( DecList decList, int level ) {
 	if(exp != null)
 	{	
 		visit(exp.typ, level);
-		System.out.println("simpleDec");
+		exp.offset = newVarOffset();
+		exp.nestLevel = level;
+		//System.out.println("simpleDec " + exp.offset);
 	}
   }
   
@@ -339,13 +336,19 @@ public void visit( DecList decList, int level ) {
 			highEmitLoc = emitLoc;
 	}
 	
-	public void emitRM( ) 
+  private void emitRM(String op, int a, int b, int c, String stuff )
 	{
+	  emitLoc++;
+	  System.out.println(emitLoc + ":	" + op +  " " + a + ", " + b + "(" + c + ")" + " " + stuff);
+	  if( highEmitLoc < emitLoc)
+			highEmitLoc = emitLoc;
+  }
 
-	}
-	
-	public void emitRO(  ) 
-	{
-
-	}
+  private void emitRO(String op, int a, int b, int c, String stuff )
+  {
+	  emitLoc++;
+	  System.out.println(emitLoc + ":	" + op +  " " + a + ", " + b + "," + c + " " + stuff);
+	  if( highEmitLoc < emitLoc)
+			highEmitLoc = emitLoc;
+  }
 }

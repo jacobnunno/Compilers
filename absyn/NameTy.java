@@ -1,6 +1,7 @@
 package absyn;
 
 public class NameTy extends Absyn {
+  public final static int ARRAY  = 2;
   public final static int INT  = 1;
   public final static int VOID = 0;
   public int typ;

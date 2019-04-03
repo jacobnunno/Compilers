@@ -13,14 +13,7 @@ The Code Generated is:
 9:	OUT  0,0,0
 10:	LD  7,-1(5)
 3:	LDA  7,7(7)
-simpleDec
-simpleDec
-intExp
-12:		LOADING OP 0, 0(0) loading varExp
-13:		ST 0, 0(0) lhs store value
-***************	intExp
-14:		LDC 0, 0(0) loading int
-compundExp
-functionDec
+11:	LDA 0, -2(0) loading varExp
+12:	LDC 0, 8(0) loading int
 end of execution
 HALT  0,0,0

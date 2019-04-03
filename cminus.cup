@@ -147,7 +147,7 @@ declaration		::= var_declaration:v
 var_declaration		::= type_specifier:t ID:i SEMI
 				{: RESULT = new SimpleDec(tleft,tright,t,i); :} 
 				| type_specifier:t ID:i LBOXPAREN NUM:n RBOXPAREN SEMI
-				{: RESULT = new ArrayDec(tleft,tright,t,i, new IntExp( tleft, tright, n )); :} 
+				{: RESULT = new ArrayDec(tleft,tright,t,i, new IntExp( tleft, tright, Integer.parseInt(n) )); :} 
 				;
 
 type_specifier		::= INT:i
@@ -197,7 +197,7 @@ param		::= type_specifier:t ID:i
 				RESULT = new SimpleDec(tleft,tright,t,i); 
 			:}
 			| type_specifier:t ID:i LBOXPAREN RBOXPAREN
-			{: RESULT = new ArrayDec(tleft,tright,t,i, new IntExp( tleft, tright, String.valueOf(0) )); :}
+			{: RESULT = new ArrayDec(tleft,tright,t,i, new IntExp( tleft, tright, 0 )); :}
 			;
 
 compound_stmt		::= LWAVEPAREN local_declarations:l statement_list:s RWAVEPAREN
@@ -393,7 +393,7 @@ factor		::= LPAREN expression:e RPAREN
 				:}
 				| NUM:n
 				{:
-					RESULT = new IntExp( nleft, nright, n );
+					RESULT = new IntExp( nleft, nright, Integer.parseInt(n) );
 				:}
 				;
 

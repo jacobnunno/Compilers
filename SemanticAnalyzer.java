@@ -229,6 +229,31 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
 		//this goes to SimpleVariable
 		//Check to see if call and void
 		iVar.index.accept( this, level);
+
+		//find the declaration
+		for (ArrayList list : symbolTable.values()) {
+		  if(list.isEmpty() == false)
+		  {
+			  for (int i = 0; i < list.size(); i++) 
+			  {
+				  NameDef current = (NameDef)list.get(i);
+				  String currentName = current.name;
+				  if (iVar.name.equals(currentName))
+				  {
+					 Dec tempDec = current.dec;
+					  ArrayDec tempSimpleDec = (ArrayDec)tempDec;
+					  iVar.arrayDecPointer = tempSimpleDec;
+					  	//if global scope
+						if(level == 0)
+						{
+								tempSimpleDec.nestLevel = 0;
+						}
+				  }		
+			  }
+		  }
+	  }
+
+		
 		if(iVar.index instanceof CallExp)
 		{
 			//System.err.println("CallExp");
@@ -259,9 +284,28 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
 			if(isDuplicateInScope(nDef) == true)
 			{
 				declaredFlag = true;
+				
 				//break;
-			}		
+			}	
+			
 		}
+		//Add the pointer
+			for (ArrayList list : symbolTable.values()) {
+			  if(list.isEmpty() == false)
+			  {
+				  for (int z = 0; z < list.size(); z++) 
+				  {
+					  NameDef current = (NameDef)list.get(z);
+					  String currentName = current.name;
+					  if (sVar.name.equals(currentName))
+					  {
+						 Dec tempDec = current.dec;
+						  SimpleDec tempSimpleDec = (SimpleDec)tempDec;
+						  sVar.simpleDecPointer = tempSimpleDec;
+					  }		
+				  }
+			  }	
+		  }
 		//System.err.println("outside******* " + declaredFlag );
 		if(declaredFlag == false)
 		{

@@ -3,7 +3,7 @@ package absyn;
 public class SimpleVar extends Var {
   public String name;
   
-  public SimpleDec simpleVarPointer;
+  public SimpleDec simpleDecPointer;
 
   public SimpleVar( int row, int col, String name ) {
     this.row = row;
