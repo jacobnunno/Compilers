@@ -1,5 +1,6 @@
 The Symbol Tree is:
 Entering the Global level:
+x: INT
 Entering the scope for function main
     x: INT
     fac: INT

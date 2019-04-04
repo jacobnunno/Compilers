@@ -14,13 +14,20 @@ The Code Generated is:
 10:	LD  7,-1(5)
 3:	LDA  7,7(7)
 12:	ST 0, -1(5) store return address
-***** frame offset-2
-***** frame offset-3
-13:	LDA 0, -2(5) loading varExp
-***** frame offset-4
-14:	ST 0, -4(5) store value
-15:	LDC 0, 8(0) loading int
-16:	LD 7, -1(5) return back to caller
-11:	LDA 7, 5(7) jump forward
-end of execution
-HALT  0,0,0
+13:	LDA 0, -3(5) loading varExp
+14:	ST 0, -5(5) store value
+15:	LDA 0, -4(5) loading simpleVar
+16:	ST 0, -6(5) store value
+17:	LDC 0, 1(0) loading int
+18:	LD 1, -6(5) op load left
+19:	ADD 0, 1,0 perform operation ADD
+20:	LD 1, -7(5) op load left
+21:	ST 0, 0(1) assign: store value
+22:	LD 7, -1(5) return back to caller
+11:	LDA 7, 11(7) jump forward
+23:	ST 5, 0(5) push ofp
+24:	LDA 5, 0(5) push frame
+25:	LDA 0, 1(7) load ac with ret ptr
+26:	LDA 7, -16(7)
+27:	LD 5, 0(5) pop frame
+28:	HALT 0, 0,0 

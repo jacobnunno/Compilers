@@ -1,25 +1,23 @@
-/*A program to check if a integer is even or odd
-
-	Errors:
-	even was never declared
+/*A program to test if else statement
 
 */
 
 void main(int k)
 {
+	int odd; 
+	int even;
 	int evenOrOdd;
-	int odd;
-	even = 2;
 	odd = 1;
-
+	even = 2;
 	evenOrOdd = 4;
+
 
 	if(evenOrOdd == 0)
 	{
-		output(even);
+		k = even;
 	}
 	else
 	{
-		output(odd);
+		k = odd;
 	}
 }

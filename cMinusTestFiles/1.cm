@@ -1,4 +1,4 @@
-/*A program to output the larger of two integers*/
+/*A program to test declarations and assignment*/
 
 void main(int x)
 {
@@ -7,13 +7,4 @@ void main(int x)
 	
 	a = 45;
 	b = 100;
-
-	if(a > b)
-	{
-		output(a);
-	}
-	else
-	{
-		output(b);
-	}
 }

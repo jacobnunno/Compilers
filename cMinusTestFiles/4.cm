@@ -1,12 +1,9 @@
-/*A program to find out if a given year is a leap year
+/*A program to test if statements without else
 
-	
-	Errors:
-		Function returns an int when it should return void
 		
 */
 
-void main(int x, int y)
+int main(int x, int y)
 {
 	int year;
 	int leap;
@@ -14,24 +11,10 @@ void main(int x, int y)
 	leap = 2;
 	notLeap = 1;
 
-	if(year = 0)
+	if(year == 0)
 	{
-		if(year != 0)
-		{
-			output(leap);
-		}
-		else 
-		{
-			if(year == 0)
-			{
-				output(leap);
-			}
-		}
-	}
-	else
-	{
-		output(notLeap);
+		leap = 4;
 	}
 	
-	return year;
+	return leap;
 }

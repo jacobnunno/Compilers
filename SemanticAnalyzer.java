@@ -300,8 +300,12 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
 					  if (sVar.name.equals(currentName))
 					  {
 						 Dec tempDec = current.dec;
+						 if(tempDec instanceof SimpleDec)
+						 {
 						  SimpleDec tempSimpleDec = (SimpleDec)tempDec;
 						  sVar.simpleDecPointer = tempSimpleDec;
+						
+						}
 					  }		
 				  }
 			  }	

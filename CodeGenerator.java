@@ -19,6 +19,7 @@ public class CodeGenerator implements AbsynVisitor {
   
   //not sure if it should init as true or false
   public boolean TraceCode = false;
+  public int entry = 0;
   
   private void loadCode(Exp exp)
   {
@@ -34,8 +35,6 @@ public class CodeGenerator implements AbsynVisitor {
 	  }
 	  else if(exp instanceof IntExp)
 	  {
-		  
-		//emitRM("LDC", 0, ((IntExp)exp).value, 0, "loading int" );	  
 	  }
 	  else if(exp instanceof CallExp)
 	  {
@@ -53,7 +52,7 @@ public class CodeGenerator implements AbsynVisitor {
 
   public void visit( ExpList expList, int level ) {
     while( expList != null && expList.head != null) {
-      expList.head.accept( this, level );
+      expList.head.accept( this, level-- );
       expList = expList.tail;
     } 
   }
@@ -83,16 +82,18 @@ public void visit( DecList decList, int level ) {
       decList = decList.tail;
     } 
     
-    
-    
     //end of execution
-    System.out.println("end of execution");
-    System.out.println("HALT  0,0,0");
+    emitRM( "ST", 5, globalOffset+0, 5, "push ofp" );
+    emitRM( "LDA", 5, globalOffset, 5, "push frame" );
+    emitRM( "LDA", 0, 1, 7, "load ac with ret ptr" );
+    emitRM_Abs( "LDA", 7, entry, "jump to main loc" );
+    emitRM( "LD", 5, 0, 5, "pop frame" );
+    emitRO( "HALT", 0, 0, 0, "" );
   }
   
   public void visit( VarDecList varDecList, int level ) {
     while( varDecList != null && varDecList.head != null) {
-      varDecList.head.accept( this, level );
+      varDecList.head.accept( this, level--);
       varDecList = varDecList.tail;
     } 
   }
@@ -101,8 +102,7 @@ public void visit( DecList decList, int level ) {
 	if(exp != null)
 	{	
 		//level++;
-		exp.rhs.accept( this, level );
-		
+
 		//left hand side stuff
 		if(exp.lhs instanceof SimpleVar)
 		{
@@ -120,24 +120,24 @@ public void visit( DecList decList, int level ) {
 		{
 		}	
 		
+		exp.rhs.accept( this, level--);
+		
+		/*
 		//right hand side stuff
 		if(exp.rhs instanceof VarExp){
 			//TODO
-			loadCode(exp.rhs);
-			//not sure about this
-			//emitRM("ST", 0, 0,0, " rhs store value" );
+			emitRM("ST", 0, 0, 1, "assign: store value );
 		}
 		else if(exp.rhs instanceof IntExp)
 		{
-			
-		//System.out.println("***************	intExp");
-			loadCode(exp.rhs);
+			emitRM("ST", 0, 0, 1, "assign: store value of int" );
 		}
 		else if(exp.rhs instanceof OpExp)
 		{
-			//System.out.println("***************		opExp");
-			loadCode(exp.rhs);
+
 		}
+		*/
+		emitRM("ST", 0, 0, 1, "assign: store value" );
 
 	}
   }
@@ -145,12 +145,19 @@ public void visit( DecList decList, int level ) {
   public void visit( IfExp exp, int level ) {
 	if(exp != null)
 	{	
-
-    //level++;
-    exp.test.accept( this, level );
-    exp.thenpart.accept( this, level );
-    if (exp.elsepart != null )
-       exp.elsepart.accept( this, level );
+		int saveLine = emitLoc++;
+		exp.test.accept( this, level--);
+		
+		exp.thenpart.accept( this, level--);
+		emitRM("JEQ", 0, (emitLoc - saveLine), 7, "br if true");
+		
+		int saveLine2 = emitLoc++;
+		
+		if (exp.elsepart != null )
+		{
+		   exp.elsepart.accept( this, level--);
+		   emitRM("LDA", 7, (emitLoc - saveLine2 - 1), 7, "jump");
+		}
    }
    //System.out.println("ifExp");
   }
@@ -158,19 +165,43 @@ public void visit( DecList decList, int level ) {
   public void visit( IntExp exp, int level ) {
 	if(exp != null)
 	{	
-		//System.out.println("intExp");
+		emitRM("LDC", 0, exp.value, 0, "loading int" );
 	}
   }
 
-  public void visit( OpExp exp, int level ) {
-	  if(exp != null)
-	{	
-		//level++;
-		exp.left.accept( this, level );
-		exp.right.accept( this, level );
-		//System.out.println("opExp");
-		
-	}
+public void visit( OpExp exp, int level ) {
+     if(exp != null)
+    {
+        //level++;
+        exp.left.accept( this, level-- );
+        exp.right.accept( this, level-- );
+        //System.out.println("opExp");
+
+        int operation = exp.op;
+        String opCode = "";
+
+        if (operation == OpExp.DIV)
+        {
+            opCode = "DIV";
+        }
+        else if (operation == OpExp.MINUS)
+        {
+            opCode = "SUB";
+        }
+        else if (operation == OpExp.MUL)
+        {
+            opCode = "MUL";
+        }
+        else if (operation == OpExp.PLUS)
+        {
+            opCode = "ADD";
+        }
+        emitRM("LD",1, frameOffset,5,"op load left");
+        emitRO(opCode, 0, 1, 0, "perform operation " + opCode);
+        // only do this LD after math ops not after comparison ops
+        int prevOffset = frameOffset - 1;
+        emitRM("LD",1, prevOffset,5,"op load left");
+    }
   }
 
   public void visit( VarExp exp, int level ) {
@@ -187,7 +218,7 @@ public void visit( DecList decList, int level ) {
 	  if(exp != null)
 	{	
 		//level++;
-		visit(exp.args, level);
+		visit(exp.args, level--);
 		//System.out.println("callExp");
 	}
   }
@@ -196,8 +227,8 @@ public void visit( DecList decList, int level ) {
 	 if(exp != null)
 	{	
 		//level++;
-		visit(exp.varDecList, level);
-		visit(exp.expList, level);
+		visit(exp.varDecList, level--);
+		visit(exp.expList, level--);
 		//System.out.println("compundExp");
 	}
   }
@@ -208,15 +239,19 @@ public void visit( DecList decList, int level ) {
 		//level++;
 		//this is an exp
 		String codestr = "";
-		iVar.index.accept( this, level);
+		iVar.index.accept( this, level--);
 		//System.out.println("indexVar");
 	}
   }
 
   public void visit( SimpleVar sVar, int level ) {
-	  if(sVar != null)
+	if(sVar != null)
 	{	
-		//System.out.println("simpleVar");
+			SimpleDec tempDec = sVar.simpleDecPointer;
+			emitRM("LDA", 0, tempDec.offset ,5, "loading simpleVar" );
+			
+			//Storing
+			emitRM("ST", 0, newframeOffset(), 5, "store value" );
 	}
   }
   
@@ -240,8 +275,16 @@ public void visit( DecList decList, int level ) {
 	  if(exp != null)
 	{	
 		//level++;
-		exp.test.accept( this, level);
-		exp.block.accept( this, level);
+		int saveLine1 = emitLoc++;
+		exp.test.accept( this, level--);
+		int saveLine2 = emitLoc++;
+		exp.block.accept( this, level--);
+		
+		
+		emitRM("JGT", 0, (saveLine1-emitLoc) ,7, "br if true" );
+		emitRM("LDC", 0, 0 ,0, "false case" );
+		emitRM("LDA", 7, (saveLine2-emitLoc) ,7, "jump" );
+		emitRM("LDC", 0, 1 ,0, "true case" );
 		//System.out.println("whileExp");
 	}
   }
@@ -251,6 +294,9 @@ public void visit( DecList decList, int level ) {
 	{	
 		//exp.size.accept( this, level);
 		visit(exp.typ, level);
+		exp.offset = newframeOffset();
+		
+		exp.nestLevel = level;
 		//System.out.println("arrayDec");
 	}
   }
@@ -258,6 +304,10 @@ public void visit( DecList decList, int level ) {
   public void visit( FunctionDec exp, int level ) {
 	if(exp != null)
 	{	
+		if(exp.func.equals("main"))
+		{
+			entry = emitLoc;
+		}
 		exp.functionAddr = emitLoc;
 		emitLoc++;
 		emitRM("ST", 0, -1, 5, "store return address");
@@ -267,7 +317,7 @@ public void visit( DecList decList, int level ) {
 		//level call param list
 		exp.params.accept(this, level);
 		//level call body
-		exp.body.accept(this, level);
+		exp.body.accept(this, level--);
 		//return
 		//not sure if this is always -1 for the b
 		emitRM("LD", 7, -1, 5, "return back to caller");
@@ -346,7 +396,7 @@ public void visit( DecList decList, int level ) {
 	
 	public void emitRM_Abs( String op, int r, int a, String c ) 
 	{
-		System.out.println(emitLoc + ":		" + op +  " " + r + ", " + (a - (emitLoc + 1)) + "(" + r + ")");
+		System.out.println(emitLoc + ":	" + op +  " " + r + ", " + (a - (emitLoc + 1)) + "(" + r + ")");
 		emitLoc++;
 		if( TraceCode) 
 			System.out.println("	" + c );

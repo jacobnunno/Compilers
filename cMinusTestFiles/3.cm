@@ -1,7 +1,5 @@
-/*A program to swap two variables
+/*A program to test while loops
 
-	Errors:
-		Duplication function declaration of the function main
 
 */
 
@@ -11,11 +9,10 @@ void main(int a)
 	int b;
 
 	temp = a;
-	a = b;
+	a = 1;
 	b = temp;
-}
-
-void main(int a)
-{
-
+	while(a > 3)
+	{
+		a = a + 1;
+	}
 }
