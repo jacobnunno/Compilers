@@ -14,7 +14,10 @@ The Code Generated is:
 10:	LD  7,-1(5)
 3:	LDA  7,7(7)
 12:	ST 0, -1(5) store return address
+***** frame offset-2
+***** frame offset-3
 13:	LDA 0, -2(5) loading varExp
+***** frame offset-4
 14:	ST 0, -4(5) store value
 15:	LDC 0, 8(0) loading int
 16:	LD 7, -1(5) return back to caller

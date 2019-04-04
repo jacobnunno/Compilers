@@ -30,12 +30,12 @@ public class CodeGenerator implements AbsynVisitor {
 	  else if(exp instanceof AssignExp)
 	  {
 		  //might not be LDA
-			emitRM("LDA", 0, 0,0, "load assign value" );  
+			//emitRM("LDA", 0, 0,0, "load assign value" );  
 	  }
 	  else if(exp instanceof IntExp)
 	  {
 		  
-		emitRM("LDC", 0, ((IntExp)exp).value, 0, "loading int" );	  
+		//emitRM("LDC", 0, ((IntExp)exp).value, 0, "loading int" );	  
 	  }
 	  else if(exp instanceof CallExp)
 	  {
@@ -47,6 +47,7 @@ public class CodeGenerator implements AbsynVisitor {
   private int newframeOffset()
   {
 	  frameOffset--;
+	  //System.out.println("***** frame offset" + frameOffset);
 	  return frameOffset;  
   }
 
