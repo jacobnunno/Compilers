@@ -1,12 +1,30 @@
 The abstract syntax tree is:
-ArrayDec: x [10] - INT
 FunctionDec: main - VOID
     CompoundExp: 
         SimpleDec: x - INT
         SimpleDec: fac - INT
+        CallExp: output
+            VarExp: 
+                SimpleVar: x
         AssignExp:
-            SimpleVar: x
-            OpExp: + 
+            SimpleVar: fac
+            IntExp: 1
+        WhileExp: 
+            OpExp: > 
                 VarExp: 
-                    SimpleVar: fac
+                    SimpleVar: x
                 IntExp: 1
+            CompoundExp: 
+                AssignExp:
+                    SimpleVar: fac
+                    OpExp: * 
+                        VarExp: 
+                            SimpleVar: fac
+                        VarExp: 
+                            SimpleVar: x
+                AssignExp:
+                    SimpleVar: x
+                    OpExp: - 
+                        VarExp: 
+                            SimpleVar: x
+                        IntExp: 1

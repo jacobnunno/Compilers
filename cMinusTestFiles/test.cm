@@ -1,7 +1,14 @@
-
-int x[10];
+/* A program to compute the factorial value of an input */
 
 void main(void) {
   int x; int fac;
-  x = fac + 1;
- }
+  output(x);
+  fac = 1;
+
+  while (x > 1) {
+    fac = fac * x;
+    x = x - 1;
+  } 
+
+
+}

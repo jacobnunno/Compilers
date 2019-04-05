@@ -19,7 +19,7 @@ class Main {
 	  String file2 = "symbolTable.txt";
 	  PrintStream table = new PrintStream(new File(file2)); 
       PrintStream console = System.out; 
-      String file3 = "zAssemblyCode.txt";
+      String file3 = "zAssemblyCode.tm";
 	  PrintStream code = new PrintStream(new File(file3)); 
       System.setOut(tree); 
       /* Start the parser */
@@ -64,11 +64,10 @@ class Main {
           
           //now we generate the code
 		  System.setOut(code); 
-		  System.out.println("The Code Generated is:");
 		  CodeGenerator generator = new CodeGenerator();
 		  System.out.println("* C-Minus Compilation to TM Code");
 		  System.out.println("* File: " + argv[0]);
-          result.accept(generator, 0);
+          result.accept(generator, -2);
 	  }
     } 
     catch (Exception e) {

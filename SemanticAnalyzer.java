@@ -30,10 +30,29 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
   public void build( DecList decList , int level ) {	  
 	System.out.println( "Entering the Global level:" );
 	
-	/*NameDef outputFunc = new NameDef("output",0,null);
-	NameDef inputFunc = new NameDef("input",0,null);
-	addHash(outputFunc);
-	addHash(inputFunc);*/
+
+	
+	//input output functions
+	NameTy inputType = new NameTy(0,0,0);
+	//NameTy inputSimpleDecType = new NameTy(0,0,1);
+	//SimpleDec inputSimpleDec = new SimpleDec(0,0,inputSimpleDecType,"void");
+	VarDecList inputVarDecList = new VarDecList(null, null);
+	FunctionDec inputFunc = new FunctionDec(0,0,inputType,"input",inputVarDecList,null);
+	inputFunc.functionAddr = 3;
+	NameDef inputNameDef = new NameDef("input",0,inputFunc);
+	addHash(inputNameDef);
+	//output
+	NameTy outputType = new NameTy(0,0,0);
+	NameTy outputSimpleDecType = new NameTy(0,0,1);
+	SimpleDec outputSimpleDec = new SimpleDec(0,0,outputSimpleDecType,"inp");
+	VarDecList outputVarDecList = new VarDecList(outputSimpleDec, null);
+	FunctionDec outputFunc = new FunctionDec(0,0,outputType,"output",outputVarDecList,null);
+	outputFunc.functionAddr = 3;
+	NameDef outputNameDef = new NameDef("output",0,outputFunc);
+	addHash(outputNameDef);
+	
+	printHash();
+	
 	
     while( decList != null ) {
       decList.head.accept( this, level );
@@ -155,6 +174,8 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
   public void build( CallExp exp , int level ) {
 	  //check if call expression has a function in hashmap
 	  
+	  build(exp.args, level);
+	  
 	  boolean foundFlag = false;
 	  
 	  for (ArrayList list : symbolTable.values()) {
@@ -192,7 +213,7 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
 							ExpListSize = 0;
 					  }
 					  //System.err.println("SIZE OF function param list: " + FunctionListSize + "calList: " + ExpListSize);
-					  if(ExpListSize != FunctionListSize)
+					  if(ExpListSize != FunctionListSize && !exp.func.equals("input"))
 					  {
 							int row = exp.row + 1;
 							int col = exp.col + 1;
@@ -302,7 +323,10 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
 						 Dec tempDec = current.dec;
 						 if(tempDec instanceof SimpleDec)
 						 {
+							
 						  SimpleDec tempSimpleDec = (SimpleDec)tempDec;
+						   //System.err.println("*************** DEC" + tempSimpleDec.name);
+						   //System.err.println("*************** VAR" + sVar.name);
 						  sVar.simpleDecPointer = tempSimpleDec;
 						
 						}

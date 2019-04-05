@@ -15,7 +15,7 @@ public class CodeGenerator implements AbsynVisitor {
   //ths is GP
   public int globalOffset = 0;
   //this is FP
-  public int frameOffset = -1;
+  //public int CHANGETHIS = -1;
   
   //not sure if it should init as true or false
   public boolean TraceCode = false;
@@ -43,42 +43,35 @@ public class CodeGenerator implements AbsynVisitor {
 	  }
   }
   
-  private int newframeOffset()
-  {
-	  frameOffset--;
-	  //System.out.println("***** frame offset" + frameOffset);
-	  return frameOffset;  
-  }
-
-  public void visit( ExpList expList, int level ) {
+  public void visit( ExpList expList, int frameOffset ) {
     while( expList != null && expList.head != null) {
-      expList.head.accept( this, level-- );
+      expList.head.accept( this, frameOffset-- );
       expList = expList.tail;
     } 
   }
   
-public void visit( DecList decList, int level ) {
+public void visit( DecList decList, int frameOffset ) {
 	System.out.println("* Standard prelude");
 	//prelude
 
-	System.out.println("0:	LD  6,0(0)");
-	System.out.println("1:	LDA  5,0(6)");
-	System.out.println("2:	ST  0,0(0)");
-	System.out.println("4:	ST  0,-1(5)");
-	System.out.println("5:	IN  0,0,0");
-	System.out.println("6:	LD  7,-1(5)");
-	System.out.println("7:	ST  0,-1(5)");
-	System.out.println("8:	LD  0,-2(5)");
-	System. out.println("9:	OUT  0,0,0");
-	System. out.println("10:	LD  7,-1(5)");
-	System.out.println("3:	LDA  7,7(7)");
+	System.out.println("0: LD  6,0(0)");
+	System.out.println("1: LDA  5,0(6)");
+	System.out.println("2: ST  0,0(0)");
+	System.out.println("4: ST  0,-1(5)");
+	System.out.println("5: IN  0,0,0");
+	System.out.println("6: LD  7,-1(5)");
+	System.out.println("7: ST  0,-1(5)");
+	System.out.println("8: LD  0,-2(5)");
+	System. out.println("9: OUT  0,0,0");
+	System. out.println("10: LD  7,-1(5)");
+	System.out.println("3: LDA  7,7(7)");
 	emitLoc = 11;
       
       
     //generating code  
       
     while( decList != null ) {
-      decList.head.accept( this, level );
+      decList.head.accept( this, frameOffset );
       decList = decList.tail;
     } 
     
@@ -91,18 +84,18 @@ public void visit( DecList decList, int level ) {
     emitRO( "HALT", 0, 0, 0, "" );
   }
   
-  public void visit( VarDecList varDecList, int level ) {
+  public void visit( VarDecList varDecList, int frameOffset ) {
     while( varDecList != null && varDecList.head != null) {
-      varDecList.head.accept( this, level--);
+      varDecList.head.accept( this, frameOffset--);
       varDecList = varDecList.tail;
     } 
   }
 
-  public void visit( AssignExp exp, int level ) {
+  public void visit( AssignExp exp, int frameOffset ) {
 	if(exp != null)
 	{	
 		//level++;
-
+	emitRM("*************OFFSET CHECK", frameOffset, 0,0, "frameoffset AssignEXP" );
 		//left hand side stuff
 		if(exp.lhs instanceof SimpleVar)
 		{
@@ -114,67 +107,53 @@ public void visit( DecList decList, int level ) {
 			emitRM("LDA", 0, tempDec.offset ,5, "loading varExp" );
 			
 			//Storing
-			emitRM("ST", 0, newframeOffset(), 5, "store value" );
+			emitRM("ST", 0, frameOffset, 5, "store value" );
 		}
 		else if(exp.lhs instanceof IndexVar)
 		{
 		}	
 		
-		exp.rhs.accept( this, level--);
+		exp.rhs.accept( this, frameOffset--);
 		
-		/*
-		//right hand side stuff
-		if(exp.rhs instanceof VarExp){
-			//TODO
-			emitRM("ST", 0, 0, 1, "assign: store value );
-		}
-		else if(exp.rhs instanceof IntExp)
-		{
-			emitRM("ST", 0, 0, 1, "assign: store value of int" );
-		}
-		else if(exp.rhs instanceof OpExp)
-		{
-
-		}
-		*/
 		emitRM("ST", 0, 0, 1, "assign: store value" );
 
 	}
   }
 
-  public void visit( IfExp exp, int level ) {
+  public void visit( IfExp exp, int frameOffset ) {
 	if(exp != null)
 	{	
 		int saveLine = emitLoc++;
-		exp.test.accept( this, level--);
+		exp.test.accept( this, frameOffset--);
 		
-		exp.thenpart.accept( this, level--);
+		exp.thenpart.accept( this, frameOffset--);
 		emitRM("JEQ", 0, (emitLoc - saveLine), 7, "br if true");
 		
 		int saveLine2 = emitLoc++;
 		
 		if (exp.elsepart != null )
 		{
-		   exp.elsepart.accept( this, level--);
+		   exp.elsepart.accept( this, frameOffset--);
 		   emitRM("LDA", 7, (emitLoc - saveLine2 - 1), 7, "jump");
 		}
    }
    //System.out.println("ifExp");
   }
 
-  public void visit( IntExp exp, int level ) {
+  public void visit( IntExp exp, int frameOffset ) {
 	if(exp != null)
 	{	
+		emitRM("*************OFFSET CHECK", frameOffset, 0,0, "frameoffset INTEXP" );
 		emitRM("LDC", 0, exp.value, 0, "loading int" );
 	}
   }
 
-public void visit( OpExp exp, int level ) {
+public void visit( OpExp exp, int frameOffset ) {
      if(exp != null)
     {
         //level++;
-        exp.left.accept( this, level-- );
-        exp.right.accept( this, level-- );
+        exp.left.accept( this, frameOffset-- );
+        exp.right.accept( this, frameOffset-- );
         //System.out.println("opExp");
 
         int operation = exp.op;
@@ -196,89 +175,109 @@ public void visit( OpExp exp, int level ) {
         {
             opCode = "ADD";
         }
-        emitRM("LD",1, frameOffset,5,"op load left");
+        emitRM("LD",0, frameOffset,5,"load operand in register 0");
+        emitRM("LD",1, frameOffset,5,"load operand in register 1");
         emitRO(opCode, 0, 1, 0, "perform operation " + opCode);
         // only do this LD after math ops not after comparison ops
-        int prevOffset = frameOffset - 1;
-        emitRM("LD",1, prevOffset,5,"op load left");
     }
   }
 
-  public void visit( VarExp exp, int level ) {
+  public void visit( VarExp exp, int frameOffset ) {
 	  if(exp != null)
 	{	
 		//level++;
 		//this will either be an indexVar or a simpleVar
-		exp.variable.accept ( this, level);    
+		exp.variable.accept ( this, frameOffset);    
 		//System.out.println("varExp");
 	}
   }
 
-  public void visit( CallExp exp, int level ) {
+  public void visit( CallExp exp, int frameOffset ) {
 	  if(exp != null)
 	{	
 		//level++;
-		visit(exp.args, level--);
+		visit(exp.args, frameOffset--);
+		emitRM("*******************CALLEXP",1, frameOffset,5," ");
+		if((exp.func).equals("input"))
+		//if the function is input
+		{
+			emitRM( "ST", 5, frameOffset, 5, "push ofp" );
+			emitRM( "LDA", 5, frameOffset, 5, "push frame" );
+			emitRM( "LDA", 0, 1, 7, "load ac with ret ptr" );
+			emitRM_Abs( "LDA", 7, entry, "jump to main loc" );
+			emitRM( "LD", 5, 0, 5, "pop frame" );
+			
+		}
+		else if((exp.func).equals("output"))
+		//if the function is output
+		{
+			
+			
+		}
+		else
+		{}
 		//System.out.println("callExp");
 	}
   }
   
-  public void visit( CompoundExp exp, int level ) {
+  public void visit( CompoundExp exp, int frameOffset ) {
 	 if(exp != null)
 	{	
 		//level++;
-		visit(exp.varDecList, level--);
-		visit(exp.expList, level--);
+		visit(exp.varDecList, frameOffset--);
+		visit(exp.expList, frameOffset--);
 		//System.out.println("compundExp");
 	}
   }
   
-  public void visit( IndexVar iVar, int level ) {
+  public void visit( IndexVar iVar, int frameOffset ) {
 	  if(iVar != null)
 	{	
 		//level++;
 		//this is an exp
 		String codestr = "";
-		iVar.index.accept( this, level--);
+		iVar.index.accept( this, frameOffset--);
 		//System.out.println("indexVar");
 	}
   }
 
-  public void visit( SimpleVar sVar, int level ) {
+  public void visit( SimpleVar sVar, int frameOffset ) {
 	if(sVar != null)
 	{	
+		emitRM("*************OFFSET CHECK", frameOffset, 0,0, "SIMPLEVAR" );
 			SimpleDec tempDec = sVar.simpleDecPointer;
 			emitRM("LDA", 0, tempDec.offset ,5, "loading simpleVar" );
+			//emitRM("***********************THING" + sVar.name, 0, 0 ,5, "loading simpleVar" );
 			
 			//Storing
-			emitRM("ST", 0, newframeOffset(), 5, "store value" );
+			emitRM("ST", 0, frameOffset, 5, "store value" );
 	}
   }
   
-  public void visit( ReturnExp rExp, int level ) {
+  public void visit( ReturnExp rExp, int frameOffset ) {
 	  if(rExp != null)
 	{	
 		//level++;
-		rExp.exp.accept( this, level);
+		rExp.exp.accept( this, frameOffset);
 		//System.out.println("returnExp");
 	}
   }
   
-  public void visit( NilExp nExp, int level ) {
+  public void visit( NilExp nExp, int frameOffset ) {
 	  if(nExp != null)
 	{	
 		
 	}
   }
 
-  public void visit( WhileExp exp, int level ) {
+  public void visit( WhileExp exp, int frameOffset ) {
 	  if(exp != null)
 	{	
 		//level++;
 		int saveLine1 = emitLoc++;
-		exp.test.accept( this, level--);
+		exp.test.accept( this, frameOffset--);
 		int saveLine2 = emitLoc++;
-		exp.block.accept( this, level--);
+		exp.block.accept( this, frameOffset--);
 		
 		
 		emitRM("JGT", 0, (saveLine1-emitLoc) ,7, "br if true" );
@@ -289,19 +288,19 @@ public void visit( OpExp exp, int level ) {
 	}
   }
   
-  public void visit( ArrayDec exp, int level ) {
+  public void visit( ArrayDec exp, int frameOffset ) {
 	  if(exp != null)
 	{	
-		//exp.size.accept( this, level);
-		visit(exp.typ, level);
-		exp.offset = newframeOffset();
+		//exp.size.accept( this, frameOffset);
+		visit(exp.typ, frameOffset);
+		exp.offset = frameOffset;
 		
-		exp.nestLevel = level;
+		exp.nestLevel = frameOffset;
 		//System.out.println("arrayDec");
 	}
   }
   
-  public void visit( FunctionDec exp, int level ) {
+  public void visit( FunctionDec exp, int frameOffset ) {
 	if(exp != null)
 	{	
 		if(exp.func.equals("main"))
@@ -313,53 +312,52 @@ public void visit( OpExp exp, int level ) {
 		emitRM("ST", 0, -1, 5, "store return address");
 
 
-		exp.result.accept( this, level);
+		exp.result.accept( this, frameOffset);
 		//level call param list
-		exp.params.accept(this, level);
+		exp.params.accept(this, frameOffset);
 		//level call body
-		exp.body.accept(this, level--);
+		exp.body.accept(this, frameOffset--);
 		//return
 		//not sure if this is always -1 for the b
 		emitRM("LD", 7, -1, 5, "return back to caller");
 		System.out.println(exp.functionAddr + ":	" + "LDA 7, " +  (emitLoc - exp.functionAddr -1)  + "(7)" + " " + "jump forward");
-		frameOffset = -1;
 		
 		
 		//System.out.println("functionDec");
 	}
   }
   
-  public void visit( NameTy exp, int level ) {
+  public void visit( NameTy exp, int frameOffset ) {
 	if(exp != null)
 	{	
 		
 	}
   }
   
-  public void visit( SimpleDec exp, int level ) {
+  public void visit( SimpleDec exp, int frameOffset ) {
 	if(exp != null)
 	{	
-		visit(exp.typ, level);
-		exp.offset = newframeOffset();
-		exp.nestLevel = level;
+		visit(exp.typ, frameOffset);
+		exp.offset = frameOffset;
+		exp.nestLevel = frameOffset;
 		//System.out.println("simpleDec " + exp.offset);
 	}
   }
   
-  public void visit( ErrorExp err, int level ) {
+  public void visit( ErrorExp err, int frameOffset ) {
 	  if(err != null)
 	{	
 	}
   }
   
-  public void visit( ErrorDec err, int level ) {
+  public void visit( ErrorDec err, int frameOffset ) {
 	  if(err != null)
 	{	
 		
 	}
   }
   
-  public void visit( ErrorVarDec err, int level ) {
+  public void visit( ErrorVarDec err, int frameOffset ) {
 	  if(err != null)
 	{	
 		
@@ -396,7 +394,7 @@ public void visit( OpExp exp, int level ) {
 	
 	public void emitRM_Abs( String op, int r, int a, String c ) 
 	{
-		System.out.println(emitLoc + ":	" + op +  " " + r + ", " + (a - (emitLoc + 1)) + "(" + r + ")");
+		System.out.println(emitLoc + ":	" + op +  "  " + r + "," + (a - (emitLoc + 1)) + "(" + r + ")");
 		emitLoc++;
 		if( TraceCode) 
 			System.out.println("	" + c );
@@ -406,7 +404,7 @@ public void visit( OpExp exp, int level ) {
 	
   private void emitRM(String op, int a, int b, int c, String stuff )
 	{
-	  System.out.println(emitLoc + ":	" + op +  " " + a + ", " + b + "(" + c + ")" + " " + stuff);	  
+	  System.out.println(emitLoc + ": " + op +  "  " + a + "," + b + "(" + c + ")" + " " + stuff);	  
 	  emitLoc++;
 	  if( highEmitLoc < emitLoc)
 			highEmitLoc = emitLoc;
@@ -414,7 +412,7 @@ public void visit( OpExp exp, int level ) {
 
   private void emitRO(String op, int a, int b, int c, String stuff )
   {
-	  System.out.println(emitLoc + ":	" + op +  " " + a + ", " + b + "," + c + " " + stuff);
+	  System.out.println(emitLoc + ": " + op +  "  " + a + "," + b + "," + c + " " + stuff);
 	  emitLoc++;
 	  if( highEmitLoc < emitLoc)
 			highEmitLoc = emitLoc;
