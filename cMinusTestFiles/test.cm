@@ -2,13 +2,5 @@
 
 void main(void) {
   int x; int fac;
-  output(x);
-  fac = 1;
-
-  while (x > 1) {
-    fac = fac * x;
-    x = x - 1;
-  } 
-
-
+  x = x + 3;
 }

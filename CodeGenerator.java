@@ -20,6 +20,7 @@ public class CodeGenerator implements AbsynVisitor {
   //not sure if it should init as true or false
   public boolean TraceCode = false;
   public int entry = 0;
+  public boolean lhsAssignFlag= false;
   
   private void loadCode(Exp exp)
   {
@@ -79,7 +80,7 @@ public void visit( DecList decList, int frameOffset ) {
     emitRM( "ST", 5, globalOffset+0, 5, "push ofp" );
     emitRM( "LDA", 5, globalOffset, 5, "push frame" );
     emitRM( "LDA", 0, 1, 7, "load ac with ret ptr" );
-    emitRM_Abs( "LDA", 7, entry, "jump to main loc" );
+    emitRM_Abs( "LDA", 7, entry+1, "jump to main loc" );
     emitRM( "LD", 5, 0, 5, "pop frame" );
     emitRO( "HALT", 0, 0, 0, "" );
   }
@@ -95,27 +96,33 @@ public void visit( DecList decList, int frameOffset ) {
 	if(exp != null)
 	{	
 		//level++;
-	emitRM("*************OFFSET CHECK", frameOffset, 0,0, "frameoffset AssignEXP" );
+	System.out.println("*************OFFSET CHECK " + frameOffset + " frameoffset AssignEXP" );
 		//left hand side stuff
 		if(exp.lhs instanceof SimpleVar)
 		{
-			//System.out.println("***************	lhs simpleVar");
-			//TODO
-			VarExp tempVarExp = new VarExp(0,0,exp.lhs);
-			SimpleVar tempVar = (SimpleVar)(tempVarExp.variable);
-			SimpleDec tempDec = tempVar.simpleDecPointer;
-			emitRM("LDA", 0, tempDec.offset ,5, "loading varExp" );
-			
-			//Storing
-			emitRM("ST", 0, frameOffset, 5, "store value" );
+			lhsAssignFlag = true;
+		}
+		exp.lhs.accept( this, frameOffset - 1);
+		
+		lhsAssignFlag =false;
+		
+		if(exp.lhs instanceof SimpleVar)
+		{
 		}
 		else if(exp.lhs instanceof IndexVar)
 		{
 		}	
 		
-		exp.rhs.accept( this, frameOffset--);
+		exp.rhs.accept( this, frameOffset - 2);
 		
-		emitRM("ST", 0, 0, 1, "assign: store value" );
+		if(exp.rhs instanceof OpExp)
+		{
+			emitRM("LD", 0, frameOffset - 1, 5, " loading result" );
+			emitRM("LD", 1, frameOffset - 2, 5, "loading result" );
+			emitRM("ST", 1, 0, 0, "assign: store value" );
+			emitRM("ST", 1, frameOffset, 5, "" );
+		}
+		
 
 	}
   }
@@ -143,17 +150,19 @@ public void visit( DecList decList, int frameOffset ) {
   public void visit( IntExp exp, int frameOffset ) {
 	if(exp != null)
 	{	
-		emitRM("*************OFFSET CHECK", frameOffset, 0,0, "frameoffset INTEXP" );
+		System.out.println("*************OFFSET CHECK " + frameOffset + "frameoffset INTEXP" );
 		emitRM("LDC", 0, exp.value, 0, "loading int" );
+		emitRM("ST", 0, frameOffset, 5, "store value" );
 	}
   }
 
 public void visit( OpExp exp, int frameOffset ) {
      if(exp != null)
     {
+		System.out.println("*************OFFSET CHECK " + frameOffset + "OPEXP" );
         //level++;
-        exp.left.accept( this, frameOffset-- );
-        exp.right.accept( this, frameOffset-- );
+        exp.left.accept( this, frameOffset - 1 );
+        exp.right.accept( this, frameOffset -2 );
         //System.out.println("opExp");
 
         int operation = exp.op;
@@ -175,9 +184,10 @@ public void visit( OpExp exp, int frameOffset ) {
         {
             opCode = "ADD";
         }
-        emitRM("LD",0, frameOffset,5,"load operand in register 0");
-        emitRM("LD",1, frameOffset,5,"load operand in register 1");
-        emitRO(opCode, 0, 1, 0, "perform operation " + opCode);
+        emitRM("LD",0, frameOffset - 1,5,"load operand in register 0");
+        emitRM("LD",1, frameOffset - 2,5,"load operand in register 1");
+        emitRO(opCode, 0, 0, 1, "perform operation " + opCode);
+        emitRM( "ST", 0, frameOffset, 5, "store OpExp" );
         // only do this LD after math ops not after comparison ops
     }
   }
@@ -197,25 +207,14 @@ public void visit( OpExp exp, int frameOffset ) {
 	{	
 		//level++;
 		visit(exp.args, frameOffset--);
-		emitRM("*******************CALLEXP",1, frameOffset,5," ");
-		if((exp.func).equals("input"))
-		//if the function is input
-		{
-			emitRM( "ST", 5, frameOffset, 5, "push ofp" );
-			emitRM( "LDA", 5, frameOffset, 5, "push frame" );
-			emitRM( "LDA", 0, 1, 7, "load ac with ret ptr" );
-			emitRM_Abs( "LDA", 7, entry, "jump to main loc" );
-			emitRM( "LD", 5, 0, 5, "pop frame" );
-			
-		}
-		else if((exp.func).equals("output"))
-		//if the function is output
-		{
-			
-			
-		}
-		else
-		{}
+		System.out.println("*************CALL EXP" + frameOffset + " ");
+		FunctionDec callFunDec = exp.functionPointer;
+		
+		emitRM( "ST", 5, frameOffset, 5, "push ofp" );
+		emitRM( "LDA", 5, frameOffset, 5, "push frame" );
+		emitRM( "LDA", 0, 1, 7, "load ac with ret ptr" );
+		emitRM_Abs( "LDA", 7, callFunDec.functionAddr + 1, "jump to main loc" );
+		emitRM( "LD", 5, 0, 5, "pop frame" );
 		//System.out.println("callExp");
 	}
   }
@@ -244,9 +243,16 @@ public void visit( OpExp exp, int frameOffset ) {
   public void visit( SimpleVar sVar, int frameOffset ) {
 	if(sVar != null)
 	{	
-		emitRM("*************OFFSET CHECK", frameOffset, 0,0, "SIMPLEVAR" );
+		System.out.println("*************OFFSET CHECK " + frameOffset + "SIMPLEVAR" );
 			SimpleDec tempDec = sVar.simpleDecPointer;
-			emitRM("LDA", 0, tempDec.offset ,5, "loading simpleVar" );
+			if(lhsAssignFlag)
+			{
+				emitRM("LDA", 0, tempDec.offset ,5, "loading simpleVar" );
+			}
+			else
+			{
+				emitRM("LD", 0, tempDec.offset ,5, "loading simpleVar" );
+			}
 			//emitRM("***********************THING" + sVar.name, 0, 0 ,5, "loading simpleVar" );
 			
 			//Storing

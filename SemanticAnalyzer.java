@@ -34,8 +34,6 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
 	
 	//input output functions
 	NameTy inputType = new NameTy(0,0,0);
-	//NameTy inputSimpleDecType = new NameTy(0,0,1);
-	//SimpleDec inputSimpleDec = new SimpleDec(0,0,inputSimpleDecType,"void");
 	VarDecList inputVarDecList = new VarDecList(null, null);
 	FunctionDec inputFunc = new FunctionDec(0,0,inputType,"input",inputVarDecList,null);
 	inputFunc.functionAddr = 3;
