@@ -96,7 +96,7 @@ public void visit( DecList decList, int frameOffset ) {
 	if(exp != null)
 	{	
 		//level++;
-	System.out.println("*************OFFSET CHECK " + frameOffset + " frameoffset AssignEXP" );
+	//System.out.println("*************OFFSET CHECK " + frameOffset + " frameoffset AssignEXP" );
 		//left hand side stuff
 		if(exp.lhs instanceof SimpleVar)
 		{
@@ -104,14 +104,7 @@ public void visit( DecList decList, int frameOffset ) {
 		}
 		exp.lhs.accept( this, frameOffset - 1);
 		
-		lhsAssignFlag =false;
-		
-		if(exp.lhs instanceof SimpleVar)
-		{
-		}
-		else if(exp.lhs instanceof IndexVar)
-		{
-		}	
+		lhsAssignFlag = false;
 		
 		exp.rhs.accept( this, frameOffset - 2);
 		
@@ -121,6 +114,17 @@ public void visit( DecList decList, int frameOffset ) {
 			emitRM("LD", 1, frameOffset - 2, 5, "loading result" );
 			emitRM("ST", 1, 0, 0, "assign: store value" );
 			emitRM("ST", 1, frameOffset, 5, "" );
+		}
+		else if (exp.rhs instanceof CallExp)
+		{
+			emitRM("LD", 1, frameOffset - 1, 5, " loading result" );
+			emitRM("ST", 0, 0, 1, "assign: store value" );
+		}
+		else
+		//for assignments that are just expressions/intExp x = 1;
+		{
+			emitRM("LD", 1, frameOffset - 1, 5, " loading result" );
+			emitRM("ST", 0, 0, 1, "assign: store value" );
 		}
 		
 
@@ -150,7 +154,7 @@ public void visit( DecList decList, int frameOffset ) {
   public void visit( IntExp exp, int frameOffset ) {
 	if(exp != null)
 	{	
-		System.out.println("*************OFFSET CHECK " + frameOffset + "frameoffset INTEXP" );
+		//System.out.println("*************OFFSET CHECK " + frameOffset + "frameoffset INTEXP" );
 		emitRM("LDC", 0, exp.value, 0, "loading int" );
 		emitRM("ST", 0, frameOffset, 5, "store value" );
 	}
@@ -159,7 +163,6 @@ public void visit( DecList decList, int frameOffset ) {
 public void visit( OpExp exp, int frameOffset ) {
      if(exp != null)
     {
-		System.out.println("*************OFFSET CHECK " + frameOffset + "OPEXP" );
         //level++;
         exp.left.accept( this, frameOffset - 1 );
         exp.right.accept( this, frameOffset -2 );
@@ -167,28 +170,72 @@ public void visit( OpExp exp, int frameOffset ) {
 
         int operation = exp.op;
         String opCode = "";
+        boolean isMathOp = false;
+
+        //no then go through assembly for Comparison ops
 
         if (operation == OpExp.DIV)
         {
+            isMathOp = true;
             opCode = "DIV";
         }
         else if (operation == OpExp.MINUS)
         {
+            isMathOp = true;
             opCode = "SUB";
         }
         else if (operation == OpExp.MUL)
         {
+            isMathOp = true;
             opCode = "MUL";
         }
         else if (operation == OpExp.PLUS)
         {
+            isMathOp = true;
             opCode = "ADD";
         }
-        emitRM("LD",0, frameOffset - 1,5,"load operand in register 0");
-        emitRM("LD",1, frameOffset - 2,5,"load operand in register 1");
-        emitRO(opCode, 0, 0, 1, "perform operation " + opCode);
-        emitRM( "ST", 0, frameOffset, 5, "store OpExp" );
-        // only do this LD after math ops not after comparison ops
+        
+        if (operation == OpExp.EQ)
+        {
+            opCode = "JEQ";
+        }
+        else if (operation == OpExp.GE)
+        {
+            opCode = "JGE";
+        }
+        else if (operation == OpExp.GT)
+        {
+            opCode = "JGT";
+        }
+        else if (operation == OpExp.LE)
+        {
+            opCode = "JLE";
+        }
+        else if (operation == OpExp.LT)
+        {
+            opCode = "JLT";
+        }
+        else if (operation == OpExp.NE)
+        {
+            opCode = "JNE";
+        }
+
+        //go through assembly for Math ops
+        if ( isMathOp == true)
+        {
+            emitRM("LD",0, frameOffset,5,"load operand in register 0");
+            emitRM("LD",1, frameOffset,5,"load operand in register 1");
+            emitRO(opCode, 0, 1, 0, "perform operation " + opCode);
+        }
+        //go through assembly for comparison ops
+        if (isMathOp == false)
+        {
+
+            //comparison OpCode it is one of the Jump commands
+            emitRM("LD",1, (-4),5,"load ");
+            emitRO("SUB", 0, 1, 0, "perform operation " + operation);
+            emitRM(opCode,0, 2,7,"br if true");
+        }
     }
   }
 
@@ -197,6 +244,7 @@ public void visit( OpExp exp, int frameOffset ) {
 	{	
 		//level++;
 		//this will either be an indexVar or a simpleVar
+		
 		exp.variable.accept ( this, frameOffset);    
 		//System.out.println("varExp");
 	}
@@ -207,7 +255,7 @@ public void visit( OpExp exp, int frameOffset ) {
 	{	
 		//level++;
 		visit(exp.args, frameOffset--);
-		System.out.println("*************CALL EXP" + frameOffset + " ");
+		//System.out.println("*************CALL EXP" + frameOffset + " ");
 		FunctionDec callFunDec = exp.functionPointer;
 		
 		emitRM( "ST", 5, frameOffset, 5, "push ofp" );
@@ -235,15 +283,23 @@ public void visit( OpExp exp, int frameOffset ) {
 		//level++;
 		//this is an exp
 		String codestr = "";
+		ArrayDec tempDec = iVar.arrayDecPointer;
+		//System.out.println("*************INDEXVAR SIZE " + iVar.size + "arrayDecSize=  " + (tempDec.size).value);
+		if(iVar.size > (tempDec.size).value  || (tempDec.size).value < 0)
+		{
+			int row = iVar.row + 1;
+			int col = iVar.col + 1;
+			System.err.println("Array index outside: " + iVar.name  + " Row " + row + " Col " + col);
+		}
 		iVar.index.accept( this, frameOffset--);
-		//System.out.println("indexVar");
+		//System.out.println("*************LEAVING INDEXVAR" );
 	}
   }
 
   public void visit( SimpleVar sVar, int frameOffset ) {
 	if(sVar != null)
 	{	
-		System.out.println("*************OFFSET CHECK " + frameOffset + "SIMPLEVAR" );
+		//System.out.println("*************OFFSET CHECK " + frameOffset + "SIMPLEVAR" );
 			SimpleDec tempDec = sVar.simpleDecPointer;
 			if(lhsAssignFlag)
 			{
@@ -280,16 +336,23 @@ public void visit( OpExp exp, int frameOffset ) {
 	  if(exp != null)
 	{	
 		//level++;
-		int saveLine1 = emitLoc++;
-		exp.test.accept( this, frameOffset--);
-		int saveLine2 = emitLoc++;
-		exp.block.accept( this, frameOffset--);
 		
-		
-		emitRM("JGT", 0, (saveLine1-emitLoc) ,7, "br if true" );
+		exp.test.accept( this, frameOffset- 1);
+
 		emitRM("LDC", 0, 0 ,0, "false case" );
-		emitRM("LDA", 7, (saveLine2-emitLoc) ,7, "jump" );
+		emitRM("LDA", 7, 1 ,7, "jump" );
 		emitRM("LDC", 0, 1 ,0, "true case" );
+		
+		int saveLine = emitLoc + 1;
+		
+		emitSkip(1);
+		
+		
+		exp.block.accept( this, frameOffset - 1 );
+		
+		emitRM_Abs("LDA", 7, saveLine ,"while jump" );		
+		System.out.println(saveLine + ": " + "JEQ 7," +  (emitLoc - saveLine -1)  + "(7)" + " " + "jump forward");
+
 		//System.out.println("whileExp");
 	}
   }
@@ -298,6 +361,9 @@ public void visit( OpExp exp, int frameOffset ) {
 	  if(exp != null)
 	{	
 		//exp.size.accept( this, frameOffset);
+		exp.offset = frameOffset + (exp.size).value;
+		exp.nestLevel = frameOffset;
+		
 		visit(exp.typ, frameOffset);
 		exp.offset = frameOffset;
 		
@@ -314,7 +380,7 @@ public void visit( OpExp exp, int frameOffset ) {
 			entry = emitLoc;
 		}
 		exp.functionAddr = emitLoc;
-		emitLoc++;
+		emitSkip(1);
 		emitRM("ST", 0, -1, 5, "store return address");
 
 
@@ -326,7 +392,7 @@ public void visit( OpExp exp, int frameOffset ) {
 		//return
 		//not sure if this is always -1 for the b
 		emitRM("LD", 7, -1, 5, "return back to caller");
-		System.out.println(exp.functionAddr + ":	" + "LDA 7, " +  (emitLoc - exp.functionAddr -1)  + "(7)" + " " + "jump forward");
+		System.out.println(exp.functionAddr + ": " + "LDA 7," +  (emitLoc - exp.functionAddr -1)  + "(7)" + " " + "jump forward");
 		
 		
 		//System.out.println("functionDec");
@@ -400,7 +466,7 @@ public void visit( OpExp exp, int frameOffset ) {
 	
 	public void emitRM_Abs( String op, int r, int a, String c ) 
 	{
-		System.out.println(emitLoc + ":	" + op +  "  " + r + "," + (a - (emitLoc + 1)) + "(" + r + ")");
+		System.out.println(emitLoc + ":	" + op +  "  " + r + "," + (a - (emitLoc + 1)) + "(" + r + ")" + "	" + c);
 		emitLoc++;
 		if( TraceCode) 
 			System.out.println("	" + c );

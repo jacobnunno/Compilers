@@ -13,6 +13,8 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
   // record the current function type
   NameTy currentFunctionType = new NameTy( 0, 0, 0);
   
+  static int arraySizeCtr;
+  
   	
 
   private void indent( int level ) {
@@ -114,6 +116,7 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
   }
 
   public void build( IntExp exp , int level ) {
+	  arraySizeCtr+= exp.value;
   }
 
   public void build( OpExp exp , int level ) {
@@ -208,6 +211,7 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
 					  }
 					  else
 					  {
+						   
 							ExpListSize = 0;
 					  }
 					  //System.err.println("SIZE OF function param list: " + FunctionListSize + "calList: " + ExpListSize);
@@ -247,7 +251,9 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
 	 //level++;
 		//this goes to SimpleVariable
 		//Check to see if call and void
+		arraySizeCtr = 0;
 		iVar.index.accept( this, level);
+		iVar.size = arraySizeCtr;
 
 		//find the declaration
 		for (ArrayList list : symbolTable.values()) {
@@ -289,7 +295,6 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
   }
 
   public void build( SimpleVar sVar , int level ) {
-	  
 	boolean declaredFlag = false;
 	if(sVar != null)
 	{	

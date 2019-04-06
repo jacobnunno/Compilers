@@ -18,7 +18,7 @@ public class ExpList extends Absyn {
   
   public int getSize()
   {
-	 int size = 1;
+	 int size = 0;
 	 if(this.head != null && this.tail != null)
 	 {
 		 while( this.tail != null ) 

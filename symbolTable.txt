@@ -2,10 +2,12 @@ The Symbol Tree is:
 Entering the Global level:
 ************************ printing Hash
 
-name is output level is 0
 name is input level is 0
+name is output level is 0
 Entering the scope for function main
     x: INT
     fac: INT
+    Entering a new block: 
+    Leaving the block
 Leaving the scope for function main
 Leaving the Global level
