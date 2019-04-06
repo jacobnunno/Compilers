@@ -134,18 +134,22 @@ public void visit( DecList decList, int frameOffset ) {
   public void visit( IfExp exp, int frameOffset ) {
 	if(exp != null)
 	{	
-		int saveLine = emitLoc++;
-		exp.test.accept( this, frameOffset--);
+		exp.test.accept( this, frameOffset- 1);
 		
-		exp.thenpart.accept( this, frameOffset--);
-		emitRM("JEQ", 0, (emitLoc - saveLine), 7, "br if true");
+		emitRM("LDC", 0, 0 ,0, "false case" );
+		emitRM("LDA", 7, 1 ,7, "jump" );
+		emitRM("LDC", 0, 1 ,0, "true case" );
 		
-		int saveLine2 = emitLoc++;
+		int saveLine = emitLoc + 1;
+		emitSkip(1);
+	
+		
+		exp.thenpart.accept( this, frameOffset- 2);
 		
 		if (exp.elsepart != null )
 		{
-		   exp.elsepart.accept( this, frameOffset--);
-		   emitRM("LDA", 7, (emitLoc - saveLine2 - 1), 7, "jump");
+		   	emitRM_Abs("LDA", 7, saveLine ,"while jump" );		
+			System.out.println(saveLine + ": " + "JEQ 7," +  (emitLoc - saveLine -1)  + "(7)" + " " + "jump forward");
 		}
    }
    //System.out.println("ifExp");
@@ -320,7 +324,18 @@ public void visit( OpExp exp, int frameOffset ) {
 	  if(rExp != null)
 	{	
 		//level++;
-		rExp.exp.accept( this, frameOffset);
+		if(rExp.exp instanceof CallExp)
+		{
+			CallExp tempCallExp = (CallExp)rExp.exp;
+			//FunctionDec tempFuncDec = (FunctionDec)tempCallExp.functionPointer;
+			tempCallExp.functionPointer.accept( this, frameOffset-1);
+			
+		}
+		else
+		{
+			rExp.exp.accept( this, frameOffset);
+		}
+
 		//System.out.println("returnExp");
 	}
   }
@@ -466,10 +481,10 @@ public void visit( OpExp exp, int frameOffset ) {
 	
 	public void emitRM_Abs( String op, int r, int a, String c ) 
 	{
-		System.out.println(emitLoc + ":	" + op +  "  " + r + "," + (a - (emitLoc + 1)) + "(" + r + ")" + "	" + c);
+		System.out.println(emitLoc + ":	" + op +  "  " + r + "," + (a - (emitLoc + 1)) + "(" + r + ")" + "  " + c);
 		emitLoc++;
 		if( TraceCode) 
-			System.out.println("	" + c );
+			System.out.println("  " + c );
 		if( highEmitLoc < emitLoc)
 			highEmitLoc = emitLoc;
 	}

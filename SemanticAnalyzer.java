@@ -348,6 +348,7 @@ public class SemanticAnalyzer implements SemanticAnalyzerBuilder {
   }
   
   public void build( ReturnExp rExp , int level ) {
+	  rExp.exp.accept( this, level);	
 	  //check if rExp has same type as currentFunctionType
 		if(rExp.exp instanceof CallExp)
 		{

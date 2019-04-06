@@ -4,10 +4,14 @@ Entering the Global level:
 
 name is input level is 0
 name is output level is 0
-Entering the scope for function main
-    x: INT
-    fac: INT
+Entering the scope for function gcd
+    u: INT
+    v: INT
     Entering a new block: 
     Leaving the block
+Leaving the scope for function gcd
+Entering the scope for function main
+    x: INT
+    y: INT
 Leaving the scope for function main
 Leaving the Global level

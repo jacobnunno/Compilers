@@ -1,33 +1,44 @@
 The abstract syntax tree is:
+FunctionDec: gcd - INT
+    SimpleDec: u - INT
+    SimpleDec: v - INT
+    CompoundExp: 
+        IfExp:
+            OpExp: = 
+                VarExp: 
+                    SimpleVar: v
+                IntExp: 0
+            ReturnExp: 
+                VarExp: 
+                    SimpleVar: u
+            ReturnExp: 
+                CallExp: gcd
+                    VarExp: 
+                        SimpleVar: v
+                    OpExp: - 
+                        VarExp: 
+                            SimpleVar: u
+                        OpExp: * 
+                            OpExp: / 
+                                VarExp: 
+                                    SimpleVar: u
+                                VarExp: 
+                                    SimpleVar: v
+                            VarExp: 
+                                SimpleVar: v
 FunctionDec: main - VOID
     CompoundExp: 
         SimpleDec: x - INT
-        SimpleDec: fac - INT
+        SimpleDec: y - INT
         AssignExp:
             SimpleVar: x
             CallExp: input
         AssignExp:
-            SimpleVar: fac
-            IntExp: 1
-        WhileExp: 
-            OpExp: > 
+            SimpleVar: y
+            CallExp: input
+        CallExp: output
+            CallExp: gcd
                 VarExp: 
                     SimpleVar: x
-                IntExp: 1
-            CompoundExp: 
-                AssignExp:
-                    SimpleVar: fac
-                    OpExp: * 
-                        VarExp: 
-                            SimpleVar: fac
-                        VarExp: 
-                            SimpleVar: x
-                AssignExp:
-                    SimpleVar: x
-                    OpExp: - 
-                        VarExp: 
-                            SimpleVar: x
-                        IntExp: 1
-        CallExp: output
-            VarExp: 
-                SimpleVar: fac
+                VarExp: 
+                    SimpleVar: y
